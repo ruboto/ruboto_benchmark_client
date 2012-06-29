@@ -32,7 +32,7 @@ class StartupTimerActivity
                  :on_click_listener => proc { |view| benchmark(view.text) { require 'yaml' } }
           button :id                => 47, :text => 'require active_record', :text_size => button_size, :layout => button_layout,
                  :on_click_listener => proc { |view| benchmark(view.text) { require 'active_record' } }
-          button :id                => 48, :text => 'req. active_support dependencies', :text_size => button_size, :layout => button_layout,
+          button :id                => 48, :text => 'require AS dependencies', :text_size => button_size, :layout => button_layout,
                  :on_click_listener => proc { |view| benchmark(view.text) { require 'active_support/dependencies' } }
 
           button :id                => 56, :text => 'Exit', :text_size => button_size, :layout => button_layout,
