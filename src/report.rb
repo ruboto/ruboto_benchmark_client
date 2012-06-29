@@ -13,7 +13,8 @@ class Report
 
   # SERVER_BASE ='http://ruboto-startup.heroku.com/startups'
   # SERVER_BASE ='http://192.168.0.195:3000/startups' # Uwe's development laptop at home
-  SERVER_BASE ='http://10.10.1.190:3000/startups' # Uwe's development laptop at work
+  #SERVER_BASE ='http://10.10.1.190:3000/startups' # Uwe's development laptop at work
+   SERVER_BASE ='http://192.168.137.41:3000/startups' # Akshay's development laptop
 
   def self.send_report(activity, with_image, startup_time)
     activity.toast "Sending measurement"
@@ -32,15 +33,15 @@ class Report
         create_method = HttpPost.new("#{SERVER_BASE}")
         create_method.setHeader("Content-Type", "application/x-www-form-urlencoded")
         list = [
-            BasicNameValuePair.new('startup[startup_time]', startup_time.to_s),
-            BasicNameValuePair.new('startup[package]', $package_name),
-            BasicNameValuePair.new('startup[package_version]', activity.package_manager.getPackageInfo($package_name, 0).versionName),
-            BasicNameValuePair.new('startup[with_image]', with_image ? '1' : '0'),
-            BasicNameValuePair.new('startup[manufacturer]', android.os.Build::MANUFACTURER),
-            BasicNameValuePair.new('startup[model]', android.os.Build::MODEL),
-            BasicNameValuePair.new('startup[android_version]', android.os.Build::VERSION::RELEASE),
-            BasicNameValuePair.new('startup[ruboto_platform_version]', activity.package_manager.getPackageInfo('org.ruboto.core', 0).versionName),
-            BasicNameValuePair.new('startup[ruboto_app_version]', Ruboto::VERSION),
+            BasicNameValuePair.new('measurement[duration]', startup_time.to_s),
+            BasicNameValuePair.new('measurement[package]', $package_name),
+            BasicNameValuePair.new('measurement[package_version]', activity.package_manager.getPackageInfo($package_name, 0).versionName),
+            BasicNameValuePair.new('measurement[test]', with_image ? '1' : '0'),
+            BasicNameValuePair.new('measurement[manufacturer]', android.os.Build::MANUFACTURER),
+            BasicNameValuePair.new('measurement[model]', android.os.Build::MODEL),
+            BasicNameValuePair.new('measurement[android_version]', android.os.Build::VERSION::RELEASE),
+            BasicNameValuePair.new('measurement[ruboto_platform_version]', activity.package_manager.getPackageInfo('org.ruboto.core', 0).versionName),
+            BasicNameValuePair.new('measurement[ruboto_app_version]', Ruboto::VERSION),
         ]
         entity = UrlEncodedFormEntity.new(list)
         create_method.setEntity(entity)
