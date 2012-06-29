@@ -1,6 +1,7 @@
 require 'ruboto/activity'
 require 'ruboto/widget'
 require 'ruboto/util/toast'
+require 'ruboto/util/stack'
 
 ruboto_import_widgets :Button, :ImageView, :LinearLayout, :TextView
 
@@ -14,16 +15,21 @@ class StartupTimerActivity
 
     self.content_view =
         linear_layout :orientation => :vertical, :gravity => Gravity::CENTER do
+          button_weight = 1.5
           image_view :image_resource => $package::R::drawable::icon, :scale_type => ImageView::ScaleType::FIT_CENTER,
                      :layout         => {:weight= => 1, :height= => :fill_parent, :width= => :fill_parent}
-          @text_view     = text_view :text    => "", :text_size => [Java::android.util.TypedValue::COMPLEX_UNIT_PT, 20],
+          button_size    = [Java::android.util.TypedValue::COMPLEX_UNIT_PT, 14]
+          @text_view     = text_view :text    => "", :text_size => button_size,
                                      :gravity => Gravity::CENTER, :id => 42,
-                                     :layout  => {:weight= => 1, :height= => :fill_parent, :width= => :fill_parent}
-          @report_button = button :text              => 'Report', :text_size => [Java::android.util.TypedValue::COMPLEX_UNIT_PT, 20],
-                                  :id                => 43, :layout => {:weight= => 1, :height= => :fill_parent, :width= => :fill_parent},
+                                     :layout  => {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent}
+          @report_button = button :text              => 'Report', :text_size => button_size,
+                                  :id                => 43, :layout => {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent},
                                   :on_click_listener => proc { |view| handle_click(view) }
-          @exit_button   = button :text => 'Exit', :text_size => [Java::android.util.TypedValue::COMPLEX_UNIT_PT, 20],
-                                  :id   => 44, :layout => {:weight= => 1, :height= => :fill_parent, :width= => :fill_parent},
+          @yaml_button   = button :text              => 'YAML', :text_size => button_size,
+                                  :id                => 44, :layout => {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent},
+                                  :on_click_listener => proc { |view| run_require_yaml_benchmark }
+          @exit_button   = button :text              => 'Exit', :text_size => button_size,
+                                  :id                => 45, :layout => {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent},
                                   :on_click_listener => proc { |view| handle_click(view) }
         end
   end
@@ -52,4 +58,19 @@ class StartupTimerActivity
     end
   end
 
+  def run_require_yaml_benchmark
+    Thread.with_large_stack do
+      begin
+        start = java.lang.System.currentTimeMillis
+        require 'yaml'
+        duration = java.lang.System.currentTimeMillis - start
+        run_on_ui_thread do
+          @text_view.text        = "Require YAML took #{duration} ms"
+          @report_button.enabled = false
+        end
+      rescue
+        puts $!
+      end
+    end
+  end
 end
