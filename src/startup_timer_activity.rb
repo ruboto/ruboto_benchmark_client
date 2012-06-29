@@ -28,7 +28,7 @@ class StartupTimerActivity
                                   :on_click_listener => proc { Report.send_report(self, @name_view.text, @benchmarks[@name_view.text]) }
           @yaml_button   = button :text              => 'YAML', :text_size => button_size,
                                   :id                => 44, :layout => {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent},
-                                  :on_click_listener => proc { |view| run_require_yaml_benchmark }
+                                  :on_click_listener => proc { |view| benchmark('require yaml') { require 'yaml' } }
           @exit_button   = button :text              => 'Exit', :text_size => button_size,
                                   :id                => 45, :layout => {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent},
                                   :on_click_listener => proc {finish}
@@ -52,16 +52,16 @@ class StartupTimerActivity
     java.lang.System.exit(0)
   end
 
-  def run_require_yaml_benchmark
-    benchmark_name = 'require yaml'
+  def benchmark(benchmark_name, &block)
+    toast "Starting '#{benchmark_name}' benchmark"
     Thread.with_large_stack do
       begin
         start = java.lang.System.currentTimeMillis
-        require 'yaml'
+        block.call
         @benchmarks[benchmark_name] ||= java.lang.System.currentTimeMillis - start
         run_on_ui_thread do
-          @name_view.text        = benchmark_name
-          @duration_view.text    = "#{@benchmarks[benchmark_name]} ms"
+          @name_view.text     = benchmark_name
+          @duration_view.text = "#{@benchmarks[benchmark_name]} ms"
         end
       rescue
         puts $!
@@ -69,4 +69,5 @@ class StartupTimerActivity
     end
     true
   end
+
 end
