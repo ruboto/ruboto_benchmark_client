@@ -21,24 +21,30 @@ class StartupTimerActivity
                                      :gravity => Gravity::CENTER, :id => 42,
                                      :layout  => {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent}
           @duration_view = text_view :text    => "", :text_size => button_size,
-                                     :gravity => Gravity::CENTER, :id => 42,
+                                     :gravity => Gravity::CENTER, :id => 43,
                                      :layout  => {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent}
-          @report_button = button :text              => 'Report', :text_size => button_size,
-                                  :id                => 43, :layout => {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent},
-                                  :on_click_listener => proc { Report.send_report(self, @name_view.text, @benchmarks[@name_view.text]) }
-          @yaml_button   = button :text              => 'YAML', :text_size => button_size,
-                                  :id                => 44, :layout => {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent},
-                                  :on_click_listener => proc { |view| benchmark('require yaml') { require 'yaml' } }
-          @exit_button   = button :text              => 'Exit', :text_size => button_size,
-                                  :id                => 45, :layout => {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent},
-                                  :on_click_listener => proc {finish}
+          button :text              => 'Report', :text_size => button_size,
+                 :id                => 44, :layout => {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent},
+                 :on_click_listener => proc { Report.send_report(self, @name_view.text, @benchmarks[@name_view.text]) }
+          button :text              => 'Startup', :text_size => button_size,
+                 :id                => 45, :layout => {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent},
+                 :on_click_listener => proc { |view| benchmark(view.text) {} }
+          button :text              => 'require active_record', :text_size => button_size,
+                 :id                => 45, :layout => {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent},
+                 :on_click_listener => proc { |view| benchmark(view.text) { require 'active_record' } }
+          button :text              => 'require yaml', :text_size => button_size,
+                 :id                => 46, :layout => {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent},
+                 :on_click_listener => proc { |view| benchmark(view.text) { require 'yaml' } }
+          button :text              => 'Exit', :text_size => button_size,
+                 :id                => 47, :layout => {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent},
+                 :on_click_listener => proc { finish }
         end
   end
 
   def on_resume
     $package.StartupTimerActivity.stop ||= java.lang.System.currentTimeMillis
     require 'report'
-    @benchmarks            = {}
+    @benchmarks            ||= {}
     @benchmarks['Startup'] ||= $package.StartupTimerActivity.stop - $package.StartupTimerActivity::START
     @name_view.text        = "Startup"
     @duration_view.text    = "#{@benchmarks['Startup']} ms"
@@ -53,7 +59,13 @@ class StartupTimerActivity
   end
 
   def benchmark(benchmark_name, &block)
-    toast "Starting '#{benchmark_name}' benchmark"
+    if @benchmarks[benchmark_name]
+      @name_view.text     = benchmark_name
+      @duration_view.text = "#{@benchmarks[benchmark_name]} ms"
+      return
+    end
+    loadingDialog                           = android.app.ProgressDialog.show(@java_instance, nil, "Running '#{benchmark_name}' benchmark...", true, true)
+    loadingDialog.canceled_on_touch_outside = false
     Thread.with_large_stack do
       begin
         start = java.lang.System.currentTimeMillis
@@ -65,6 +77,8 @@ class StartupTimerActivity
         end
       rescue
         puts $!
+      ensure
+        loadingDialog.dismiss
       end
     end
     true
