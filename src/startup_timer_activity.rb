@@ -3,7 +3,7 @@ require 'ruboto/widget'
 require 'ruboto/util/toast'
 require 'ruboto/util/stack'
 
-ruboto_import_widgets :Button, :ImageView, :LinearLayout, :TextView
+ruboto_import_widgets :Button, :LinearLayout, :TextView
 
 java_import android.view.Gravity
 
@@ -15,11 +15,12 @@ class StartupTimerActivity
 
     self.content_view =
         linear_layout :orientation => :vertical, :gravity => Gravity::CENTER do
-          button_weight = 1.5
-          image_view :image_resource => $package::R::drawable::icon, :scale_type => ImageView::ScaleType::FIT_CENTER,
-                     :layout         => {:weight= => 1, :height= => :fill_parent, :width= => :fill_parent}
+          button_weight  = 1.5
           button_size    = [Java::android.util.TypedValue::COMPLEX_UNIT_PT, 14]
-          @text_view     = text_view :text    => "", :text_size => button_size,
+          @name_view     = text_view :text    => "", :text_size => button_size,
+                                     :gravity => Gravity::CENTER, :id => 42,
+                                     :layout  => {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent}
+          @duration_view = text_view :text    => "", :text_size => button_size,
                                      :gravity => Gravity::CENTER, :id => 42,
                                      :layout  => {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent}
           @report_button = button :text              => 'Report', :text_size => button_size,
@@ -36,8 +37,11 @@ class StartupTimerActivity
 
   def on_resume
     $package.StartupTimerActivity.stop ||= java.lang.System.currentTimeMillis
-    @startup_time                      ||= $package.StartupTimerActivity.stop - $package.StartupTimerActivity::START
-    @text_view.text                    = "Startup took #{@startup_time} ms"
+    require 'report'
+    @benchmarks = {}
+    @benchmarks['Startup']             ||= $package.StartupTimerActivity.stop - $package.StartupTimerActivity::START
+    @name_view.text                    = "Startup"
+    @duration_view.text                = "#{@benchmarks['Startup']} ms"
   end
 
   private
@@ -45,12 +49,7 @@ class StartupTimerActivity
   def handle_click(view)
     case view
     when @report_button
-      java_import android.content.Intent
-      java_import android.net.Uri
-      java_import android.util.Log
-
-      require 'report'
-      Report.send_report(self, true, @startup_time)
+      Report.send_report(self, @name_view.text, @benchmarks[@name_view.text])
     when @exit_button
       finish
       java.lang.System.runFinalizersOnExit(true)
@@ -59,18 +58,23 @@ class StartupTimerActivity
   end
 
   def run_require_yaml_benchmark
+    benchmark_name = 'require yaml'
     Thread.with_large_stack do
       begin
         start = java.lang.System.currentTimeMillis
         require 'yaml'
-        duration = java.lang.System.currentTimeMillis - start
+        @benchmarks[benchmark_name] ||= java.lang.System.currentTimeMillis - start
         run_on_ui_thread do
-          @text_view.text        = "Require YAML took #{duration} ms"
+          @name_view.text        = benchmark_name
+          @duration_view.text    = "#{@benchmarks[benchmark_name]} ms"
           @report_button.enabled = false
+          require 'report'
+          Report.send_report(self, benchmark_name, @benchmarks[benchmark_name])
         end
       rescue
         puts $!
       end
     end
+    true
   end
 end

@@ -1,4 +1,6 @@
 class Report
+  java_import android.content.Intent
+  java_import android.net.Uri
   java_import android.util.Log
 
   java_import org.apache.http.client.entity.UrlEncodedFormEntity
@@ -11,13 +13,13 @@ class Report
   java_import org.apache.http.protocol.BasicHttpContext
   java_import org.apache.http.util.EntityUtils
 
-  # SERVER_BASE ='http://ruboto-startup.heroku.com/startups'
-  # SERVER_BASE ='http://192.168.0.195:3000/startups' # Uwe's development laptop at home
-  #SERVER_BASE ='http://10.10.1.190:3000/startups' # Uwe's development laptop at work
-   SERVER_BASE ='http://192.168.137.41:3000/startups' # Akshay's development laptop
+  SERVER_BASE ='http://ruboto-startup.heroku.com/measurements'
+  # SERVER_BASE ='http://192.168.0.195:3000/measurements' # Uwe's development laptop at home
+  # SERVER_BASE ='http://10.10.1.190:3000/measurements' # Uwe's development laptop at work
+  # SERVER_BASE ='http://192.168.137.41:3000/measurements' # Akshay's development laptop
 
-  def self.send_report(activity, with_image, startup_time)
-    activity.toast "Sending measurement"
+  def self.send_report(activity, test_name, duration)
+    activity.toast "Sending '#{test_name}' measurement"
     Thread.start do
       begin
         http_context = BasicHttpContext.new
@@ -33,10 +35,10 @@ class Report
         create_method = HttpPost.new("#{SERVER_BASE}")
         create_method.setHeader("Content-Type", "application/x-www-form-urlencoded")
         list = [
-            BasicNameValuePair.new('measurement[duration]', startup_time.to_s),
             BasicNameValuePair.new('measurement[package]', $package_name),
             BasicNameValuePair.new('measurement[package_version]', activity.package_manager.getPackageInfo($package_name, 0).versionName),
-            BasicNameValuePair.new('measurement[test]', with_image ? '1' : '0'),
+            BasicNameValuePair.new('measurement[test]', test_name),
+            BasicNameValuePair.new('measurement[duration]', duration.to_s),
             BasicNameValuePair.new('measurement[manufacturer]', android.os.Build::MANUFACTURER),
             BasicNameValuePair.new('measurement[model]', android.os.Build::MODEL),
             BasicNameValuePair.new('measurement[android_version]', android.os.Build::VERSION::RELEASE),
@@ -66,6 +68,5 @@ class Report
         http_client.try :close
       end
     end
-
   end
 end
