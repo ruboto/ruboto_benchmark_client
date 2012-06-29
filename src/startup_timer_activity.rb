@@ -11,32 +11,31 @@ class StartupTimerActivity
   include Ruboto::Activity
 
   def on_create(bundle)
-    set_title "Ruboto startup timer #{package_manager.getPackageInfo($package_name, 0).versionName}"
+    set_title "Ruboto Benchmarks #{package_manager.getPackageInfo($package_name, 0).versionName}"
 
     self.content_view =
         linear_layout :orientation => :vertical, :gravity => Gravity::CENTER do
           button_weight  = 1.5
-          button_size    = [Java::android.util.TypedValue::COMPLEX_UNIT_PT, 14]
+          button_size    = [Java::android.util.TypedValue::COMPLEX_UNIT_PT, 12]
+          button_layout  = {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent}
           @name_view     = text_view :text    => "", :text_size => button_size,
                                      :gravity => Gravity::CENTER, :id => 42,
-                                     :layout  => {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent}
+                                     :layout  => button_layout
           @duration_view = text_view :text    => "", :text_size => button_size,
                                      :gravity => Gravity::CENTER, :id => 43,
-                                     :layout  => {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent}
-          button :text              => 'Report', :text_size => button_size,
-                 :id                => 44, :layout => {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent},
+                                     :layout  => button_layout
+          button :id                => 44, :text => 'Report', :text_size => button_size, :layout => button_layout,
                  :on_click_listener => proc { Report.send_report(self, @name_view.text, @benchmarks[@name_view.text]) }
-          button :text              => 'Startup', :text_size => button_size,
-                 :id                => 45, :layout => {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent},
+          button :id                => 45, :text => 'Startup', :text_size => button_size, :layout => button_layout,
                  :on_click_listener => proc { |view| benchmark(view.text) {} }
-          button :text              => 'require active_record', :text_size => button_size,
-                 :id                => 45, :layout => {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent},
-                 :on_click_listener => proc { |view| benchmark(view.text) { require 'active_record' } }
-          button :text              => 'require yaml', :text_size => button_size,
-                 :id                => 46, :layout => {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent},
+          button :id                => 46, :text => 'require yaml', :text_size => button_size, :layout => button_layout,
                  :on_click_listener => proc { |view| benchmark(view.text) { require 'yaml' } }
-          button :text              => 'Exit', :text_size => button_size,
-                 :id                => 47, :layout => {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent},
+          button :id                => 47, :text => 'require active_record', :text_size => button_size, :layout => button_layout,
+                 :on_click_listener => proc { |view| benchmark(view.text) { require 'active_record' } }
+          button :id                => 48, :text => 'req. active_support dependencies', :text_size => button_size, :layout => button_layout,
+                 :on_click_listener => proc { |view| benchmark(view.text) { require 'active_support/dependencies' } }
+
+          button :id                => 56, :text => 'Exit', :text_size => button_size, :layout => button_layout,
                  :on_click_listener => proc { finish }
         end
   end
