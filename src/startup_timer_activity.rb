@@ -25,36 +25,31 @@ class StartupTimerActivity
                                      :layout  => {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent}
           @report_button = button :text              => 'Report', :text_size => button_size,
                                   :id                => 43, :layout => {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent},
-                                  :on_click_listener => proc { |view| handle_click(view) }
+                                  :on_click_listener => proc { Report.send_report(self, @name_view.text, @benchmarks[@name_view.text]) }
           @yaml_button   = button :text              => 'YAML', :text_size => button_size,
                                   :id                => 44, :layout => {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent},
                                   :on_click_listener => proc { |view| run_require_yaml_benchmark }
           @exit_button   = button :text              => 'Exit', :text_size => button_size,
                                   :id                => 45, :layout => {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent},
-                                  :on_click_listener => proc { |view| handle_click(view) }
+                                  :on_click_listener => proc {finish}
         end
   end
 
   def on_resume
     $package.StartupTimerActivity.stop ||= java.lang.System.currentTimeMillis
     require 'report'
-    @benchmarks = {}
-    @benchmarks['Startup']             ||= $package.StartupTimerActivity.stop - $package.StartupTimerActivity::START
-    @name_view.text                    = "Startup"
-    @duration_view.text                = "#{@benchmarks['Startup']} ms"
+    @benchmarks            = {}
+    @benchmarks['Startup'] ||= $package.StartupTimerActivity.stop - $package.StartupTimerActivity::START
+    @name_view.text        = "Startup"
+    @duration_view.text    = "#{@benchmarks['Startup']} ms"
   end
 
   private
 
-  def handle_click(view)
-    case view
-    when @report_button
-      Report.send_report(self, @name_view.text, @benchmarks[@name_view.text])
-    when @exit_button
-      finish
-      java.lang.System.runFinalizersOnExit(true)
-      java.lang.System.exit(0)
-    end
+  def finish
+    super
+    java.lang.System.runFinalizersOnExit(true)
+    java.lang.System.exit(0)
   end
 
   def run_require_yaml_benchmark
@@ -67,9 +62,6 @@ class StartupTimerActivity
         run_on_ui_thread do
           @name_view.text        = benchmark_name
           @duration_view.text    = "#{@benchmarks[benchmark_name]} ms"
-          @report_button.enabled = false
-          require 'report'
-          Report.send_report(self, benchmark_name, @benchmarks[benchmark_name])
         end
       rescue
         puts $!
