@@ -16,7 +16,7 @@ class StartupTimerActivity
     self.content_view =
         linear_layout :orientation => :vertical, :gravity => Gravity::CENTER do
           button_weight  = 1.5
-          button_size    = [Java::android.util.TypedValue::COMPLEX_UNIT_PT, 12]
+          button_size    = [Java::android.util.TypedValue::COMPLEX_UNIT_PT, 11]
           button_layout  = {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent}
           @name_view     = text_view :text    => "", :text_size => button_size,
                                      :gravity => Gravity::CENTER, :id => 42,
