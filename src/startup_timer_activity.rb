@@ -18,11 +18,11 @@ class StartupTimerActivity
     self.content_view =
         linear_layout :orientation => :vertical, :gravity => Gravity::CENTER do
           button_weight = 1
-          button_size = [Java::android.util.TypedValue::COMPLEX_UNIT_PT, 12]
+          button_size = [Java::android.util.TypedValue::COMPLEX_UNIT_PT, 20]
           button_layout = {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent}
 
-          @duration_view = text_view :id => 43, :text => "", :text_size => button_size, :gravity => Gravity::CENTER,
-                                     :layout => button_layout
+          @duration_view = text_view :id => 43, :text => "", :gravity => Gravity::CENTER, :layout => button_layout,
+                                     :text_size => [Java::android.util.TypedValue::COMPLEX_UNIT_PT, 30]
           benchmarks = {
               'Startup' => proc {},
               'Layout' => proc {},
@@ -31,6 +31,7 @@ class StartupTimerActivity
               'require AS dependencies' => proc { require 'active_support/deprecation'; require 'active_support/dependencies' },
               'Fibonacci , n=20' => proc { fib(20) },
               'TicTacToe' => proc { require 'tictactoe'; Game.new },
+              'NOOP' => proc {},
           }
 
           @benchmark_view = spinner :id => 48, :list => benchmarks.keys, :layout => button_layout,
