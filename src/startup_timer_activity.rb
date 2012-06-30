@@ -34,12 +34,18 @@ class StartupTimerActivity
                  :on_click_listener => proc { |view| benchmark(view.text) { require 'active_record' } }
           button :id                => 48, :text => 'require AS dependencies', :text_size => button_size, :layout => button_layout,
                  :on_click_listener => proc { |view| benchmark(view.text) { require 'active_support/deprecation' ; require 'active_support/dependencies' } }
-
+          button :id                => 49, :text => 'Fibonacci , n=20', :text_size => button_size, :layout => button_layout,
+                 :on_click_listener => proc { |view| benchmark(view.text) { fib (20)} }
           button :id                => 56, :text => 'Exit', :text_size => button_size, :layout => button_layout,
                  :on_click_listener => proc { finish }
         end
   end
 
+  def fib(n)
+      n <= 2 ? 1 : fib(n-2) +fib(n-1)
+  end    
+  
+  
   def on_resume
     $package.StartupTimerActivity.stop ||= java.lang.System.currentTimeMillis
     require 'report'
@@ -56,6 +62,7 @@ class StartupTimerActivity
     java.lang.System.runFinalizersOnExit(true)
     java.lang.System.exit(0)
   end
+  
 
   def benchmark(benchmark_name, &block)
     if @benchmarks[benchmark_name]
