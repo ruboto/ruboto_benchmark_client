@@ -37,7 +37,9 @@ class StartupTimerActivity
                  :on_click_listener => proc { |view| benchmark(view.text) { require 'active_record' } }
           button :id => 49, :text => 'require AS dependencies', :text_size => button_size, :layout => button_layout,
                  :on_click_listener => proc { |view| benchmark(view.text) { require 'active_support/deprecation'; require 'active_support/dependencies' } }
-          button :id => 50, :text => 'TicTacToe', :text_size => button_size, :layout => button_layout,
+          button :id => 50, :text => 'Fibonacci , n=20', :text_size => button_size, :layout => button_layout,
+                 :on_click_listener => proc { |view| benchmark(view.text) { fib (20)} }
+          button :id => 51, :text => 'TicTacToe', :text_size => button_size, :layout => button_layout,
                  :on_click_listener => proc { |view| benchmark(view.text) { require 'tictactoe'; Game.new } }
 
           button :id => 56, :text => 'Exit', :text_size => button_size, :layout => button_layout,
@@ -46,6 +48,11 @@ class StartupTimerActivity
     @layout_duration = System.currentTimeMillis - layout_start
   end
 
+  def fib(n)
+      n <= 2 ? 1 : fib(n-2) +fib(n-1)
+  end    
+  
+  
   def on_resume
     if $package.StartupTimerActivity.stop.nil?
       $package.StartupTimerActivity.stop = System.currentTimeMillis
