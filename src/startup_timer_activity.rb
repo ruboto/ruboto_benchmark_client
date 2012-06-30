@@ -30,15 +30,16 @@ class StartupTimerActivity
                 'require yaml' => proc { require 'yaml' },
                 'require active_record' => proc { require 'active_record' },
                 'require AS dependencies' => proc { require 'active_support/deprecation'; require 'active_support/dependencies' },
-                'Fibonacci , n=20' => proc { fib(20)},
+                'Fibonacci , n=20' => proc { fib(20) },
                 'TicTacToe' => proc { require 'tictactoe'; Game.new },
             }
 
-            spinner :id => 48, :list => benchmarks.keys, :gravity => Gravity::CENTER, :layout => button_layout,
+            @benchmark_view = spinner :id => 48, :list => benchmarks.keys, :gravity => Gravity::CENTER, :layout => button_layout,
+                    :item_layout => $package.R::layout::spinner_layout,
                     :on_item_selected_listener => proc { |spinner, view, position, id| view && benchmark(view.text, &benchmarks[view.text]) }
 
             button :id => 44, :text => 'Report', :text_size => button_size, :layout => button_layout,
-                   :on_click_listener => proc { Report.send_report(self, @name_view.text, $benchmarks[@name_view.text]) }
+                   :on_click_listener => proc { Report.send_report(self, @benchmark_view.selected_view.text, $benchmarks[@benchmark_view.selected_view.text]) }
             button :id => 56, :text => 'Exit', :text_size => button_size, :layout => button_layout,
                    :on_click_listener => proc { finish }
           rescue
