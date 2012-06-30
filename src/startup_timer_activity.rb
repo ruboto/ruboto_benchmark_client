@@ -17,35 +17,30 @@ class StartupTimerActivity
     layout_start = System.currentTimeMillis
     self.content_view =
         linear_layout :orientation => :vertical, :gravity => Gravity::CENTER do
-          begin
-            button_weight = 1
-            button_size = [Java::android.util.TypedValue::COMPLEX_UNIT_PT, 12]
-            button_layout = {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent}
+          button_weight = 1
+          button_size = [Java::android.util.TypedValue::COMPLEX_UNIT_PT, 12]
+          button_layout = {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent}
 
-            @duration_view = text_view :id => 43, :text => "", :text_size => button_size, :gravity => Gravity::CENTER,
-                                       :layout => button_layout
-            benchmarks = {
-                'Startup' => proc {},
-                'Layout' => proc {},
-                'require yaml' => proc { require 'yaml' },
-                'require active_record' => proc { require 'active_record' },
-                'require AS dependencies' => proc { require 'active_support/deprecation'; require 'active_support/dependencies' },
-                'Fibonacci , n=20' => proc { fib(20) },
-                'TicTacToe' => proc { require 'tictactoe'; Game.new },
-            }
+          @duration_view = text_view :id => 43, :text => "", :text_size => button_size, :gravity => Gravity::CENTER,
+                                     :layout => button_layout
+          benchmarks = {
+              'Startup' => proc {},
+              'Layout' => proc {},
+              'require yaml' => proc { require 'yaml' },
+              'require active_record' => proc { require 'active_record' },
+              'require AS dependencies' => proc { require 'active_support/deprecation'; require 'active_support/dependencies' },
+              'Fibonacci , n=20' => proc { fib(20) },
+              'TicTacToe' => proc { require 'tictactoe'; Game.new },
+          }
 
-            @benchmark_view = spinner :id => 48, :list => benchmarks.keys, :gravity => Gravity::CENTER, :layout => button_layout,
-                    :item_layout => $package.R::layout::spinner_layout,
-                    :on_item_selected_listener => proc { |spinner, view, position, id| view && benchmark(view.text, &benchmarks[view.text]) }
+          @benchmark_view = spinner :id => 48, :list => benchmarks.keys, :layout => button_layout,
+                                    :item_layout => $package.R::layout::spinner_layout,
+                                    :on_item_selected_listener => proc { |spinner, view, position, id| view && benchmark(view.text, &benchmarks[view.text]) }
 
-            button :id => 44, :text => 'Report', :text_size => button_size, :layout => button_layout,
-                   :on_click_listener => proc { Report.send_report(self, @benchmark_view.selected_view.text, $benchmarks[@benchmark_view.selected_view.text]) }
-            button :id => 56, :text => 'Exit', :text_size => button_size, :layout => button_layout,
-                   :on_click_listener => proc { finish }
-          rescue
-            puts $!
-            puts $!.backtrace.join("\n")
-          end
+          button :id => 44, :text => 'Report', :text_size => button_size, :layout => button_layout,
+                 :on_click_listener => proc { Report.send_report(self, @benchmark_view.selected_view.text, $benchmarks[@benchmark_view.selected_view.text]) }
+          button :id => 56, :text => 'Exit', :text_size => button_size, :layout => button_layout,
+                 :on_click_listener => proc { finish }
         end
     @layout_duration = System.currentTimeMillis - layout_start
   end
