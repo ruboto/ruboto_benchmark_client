@@ -45,7 +45,7 @@ public class RubotoService extends android.app.Service {
         try {
             if (scriptName != null) {
                 System.out.println("Loading service script: " + scriptName);
-                new Script(scriptName).execute();
+                JRubyAdapter.exec(new Script(scriptName).getContents());
                 String rubyClassName = Script.toCamelCase(scriptName);
                 System.out.println("Looking for Ruby class: " + rubyClassName);
                 Object rubyClass = JRubyAdapter.get(rubyClassName);

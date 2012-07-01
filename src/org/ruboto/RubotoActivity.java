@@ -133,7 +133,7 @@ public class RubotoActivity extends android.app.Activity {
                 Object rubyClass = JRubyAdapter.get(rubyClassName);
                 if (rubyClass == null) {
                     System.out.println("Loading script: " + scriptName);
-                    new Script(scriptName).execute();
+                    JRubyAdapter.exec(new Script(scriptName).getContents());
                 }
                 rubyClass = JRubyAdapter.get(rubyClassName);
                 if (rubyClass != null) {
@@ -144,7 +144,7 @@ public class RubotoActivity extends android.app.Activity {
                     JRubyAdapter.exec("$ruby_activity.on_create($bundle)");
                 }
             } else if (configBundle != null) {
-                // TODO: Why doesn't this work? 
+                // TODO: Why doesn't this work?
                 // JRubyAdapter.callMethod(this, "initialize_ruboto");
             	JRubyAdapter.execute("$activity.initialize_ruboto");
                 // TODO: Why doesn't this work?

@@ -35,7 +35,7 @@ public class RubotoBroadcastReceiver extends android.content.BroadcastReceiver {
     	JRubyAdapter.put("$broadcast_receiver", this);
         if (scriptName != null) {
             try {
-                new Script(scriptName).execute();
+                JRubyAdapter.exec(new Script(scriptName).getContents());
                 String rubyClassName = Script.toCamelCase(scriptName);
                 System.out.println("Looking for Ruby class: " + rubyClassName);
                 Object rubyClass = JRubyAdapter.get(rubyClassName);
@@ -67,5 +67,3 @@ public class RubotoBroadcastReceiver extends android.content.BroadcastReceiver {
         }
     }
 }	
-
-

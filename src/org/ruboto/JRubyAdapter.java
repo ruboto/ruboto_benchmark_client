@@ -114,7 +114,7 @@ public class JRubyAdapter {
                 }
 
                 System.out.println("Found JRuby in platform APK");
-                classLoader = new PathClassLoader(apkName, Script.class.getClassLoader());
+                classLoader = new PathClassLoader(apkName, JRubyAdapter.class.getClassLoader());
 
                 try {
                     scriptingContainerClass = Class.forName("org.jruby.embed.ScriptingContainer", true, classLoader);

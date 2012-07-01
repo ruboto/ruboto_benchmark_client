@@ -106,25 +106,25 @@ public class Script {
         return this;
     }
 
-	public String getContents() throws IOException {
-		InputStream is = null;
-		BufferedReader buffer = null;
-		try {
-			if (new File(scriptsDir + "/" + name).exists()) {
-				is = new java.io.FileInputStream(scriptsDir + "/" + name);
-			} else {
-				is = getClass().getClassLoader().getResourceAsStream(name);
-			}
-			buffer = new BufferedReader(new java.io.InputStreamReader(is), 8192);
-			StringBuilder source = new StringBuilder();
-			while (true) {
-				String line = buffer.readLine();
-				if (line == null) {
-					break;
-				}
-				source.append(line).append("\n");
-			}
-			return source.toString();
+    public String getContents() throws IOException {
+        InputStream is = null;
+        BufferedReader buffer = null;
+        try {
+            if (new File(scriptsDir + "/" + name).exists()) {
+                is = new java.io.FileInputStream(scriptsDir + "/" + name);
+            } else {
+                is = getClass().getClassLoader().getResourceAsStream(name);
+            }
+                buffer = new BufferedReader(new java.io.InputStreamReader(is), 8192);
+            StringBuilder source = new StringBuilder();
+            while (true) {
+                String line = buffer.readLine();
+                if (line == null) {
+                    break;
+                }
+                source.append(line).append("\n");
+            }
+            return source.toString();
 		} finally {
 			if (is != null) {
 				is.close();
