@@ -26,6 +26,11 @@ class StartupTimerActivity
           benchmarks = {
               'Startup' => proc {},
               'Layout' => proc {},
+              'JRuby Runtime pre' => proc {},
+              'JRuby Runtime load' => proc {},
+              'JRuby Runtime prep' => proc {},
+              'Script load' => proc {},
+              'Script resume' => proc {},
               'require yaml' => proc { require 'yaml' },
               'require active_record' => proc { require 'active_record' },
               'require AS dependencies' => proc { require 'active_support/deprecation'; require 'active_support/dependencies' },
@@ -56,8 +61,13 @@ class StartupTimerActivity
       $package.StartupTimerActivity.stop = System.currentTimeMillis
       require 'report'
       $benchmarks = {}
-      $benchmarks['Startup'] = $package.StartupTimerActivity.stop - $package.StartupTimerActivity::START - @layout_duration
+      $benchmarks['Startup'] = $package.StartupTimerActivity.stop - $package.StartupTimerActivity::START
       $benchmarks['Layout'] = @layout_duration
+      $benchmarks['JRuby Runtime pre'] = $package.StartupTimerActivity.jrubyStart - $package.StartupTimerActivity::START
+      $benchmarks['JRuby Runtime load'] = $package.StartupTimerActivity.jrubyLoaded - $package.StartupTimerActivity.jrubyStart
+      $benchmarks['JRuby Runtime prep'] = $package.StartupTimerActivity.fireRubotoActivity - $package.StartupTimerActivity.jrubyLoaded
+      $benchmarks['Script load'] = $package.StartupTimerActivity.scriptLoaded - $package.StartupTimerActivity.fireRubotoActivity
+      $benchmarks['Script resume'] = $package.StartupTimerActivity.stop - $package.StartupTimerActivity.scriptLoaded
     end
     @duration_view.text = "#{$benchmarks['Startup']} ms"
   end

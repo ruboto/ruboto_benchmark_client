@@ -6,6 +6,8 @@ import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.ruboto.benchmarks.StartupTimerActivity;
+
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -68,6 +70,7 @@ public class JRubyAdapter {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static synchronized boolean setUpJRuby(Context appContext, PrintStream out) {
         if (!initialized) {
+            StartupTimerActivity.jrubyStart = System.currentTimeMillis();
             // BEGIN Ruboto HeapAlloc
             @SuppressWarnings("unused")
 			byte[] arrayForHeapAllocation = new byte[13 * 1024 * 1024];
@@ -187,6 +190,7 @@ public class JRubyAdapter {
             } catch (NoSuchMethodException e) {
                 handleInitException(e);
             }
+            StartupTimerActivity.jrubyLoaded = System.currentTimeMillis();
         }
         return initialized;
     }
