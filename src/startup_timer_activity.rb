@@ -34,9 +34,10 @@ class StartupTimerActivity
               'NOOP' => proc {},
           }
 
-          @benchmark_view = spinner :id => 48, :list => benchmarks.keys, :layout => button_layout,
-                                    :item_layout => $package.R::layout::spinner_layout,
-                                    :on_item_selected_listener => proc { |spinner, view, position, id| view && benchmark(view.text, &benchmarks[view.text]) }
+          @benchmark_view =
+              spinner :id => 48, :list => benchmarks.keys, :layout => button_layout,
+                      :item_layout => $package.R::layout::spinner_layout,
+                      :on_item_selected_listener => proc { |spinner, view, position, id| view && benchmark(view.text, &benchmarks[view.text]) }
 
           button :id => 44, :text => 'Report', :text_size => button_size, :layout => button_layout,
                  :on_click_listener => proc { Report.send_report(self, @benchmark_view.selected_view.text, $benchmarks[@benchmark_view.selected_view.text]) }
@@ -45,11 +46,6 @@ class StartupTimerActivity
         end
     @layout_duration = System.currentTimeMillis - layout_start
   end
-
-  def fib(n)
-    n <= 2 ? 1 : fib(n-2) +fib(n-1)
-  end
-
 
   def on_resume
     if $package.StartupTimerActivity.stop.nil?
@@ -63,6 +59,10 @@ class StartupTimerActivity
   end
 
   private
+
+  def fib(n)
+    n <= 2 ? 1 : fib(n-2) + fib(n-1)
+  end
 
   def finish
     super
@@ -78,6 +78,7 @@ class StartupTimerActivity
     message = "Running '#{benchmark_name}' benchmark..."
     loadingDialog = android.app.ProgressDialog.show(@java_instance, nil, message, true, true)
     loadingDialog.canceled_on_touch_outside = false
+    getWindow().addFlags(android.view.WindowManager::LayoutParams::FLAG_KEEP_SCREEN_ON)
     puts message
     Thread.with_large_stack do
       begin
@@ -93,6 +94,9 @@ class StartupTimerActivity
         puts $!.backtrace.join("\n")
       ensure
         loadingDialog.dismiss
+        run_on_ui_thread do
+          getWindow().clearFlags(android.view.WindowManager::LayoutParams::FLAG_KEEP_SCREEN_ON)
+        end
       end
     end
     true
