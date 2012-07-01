@@ -32,6 +32,10 @@ class StartupTimerActivity
               'Fibonacci , n=20' => proc { fib(20) },
               'TicTacToe' => proc { require 'tictactoe'; Game.new },
               'NOOP' => proc {},
+        		  'require json' => proc { require 'json/pure' },
+      			  'require tmail' => proc { require 'tmail' },			  
+##      			  'SQLdroid' => proc { require "sqldroid/version" ; require "sqldroid/sqldroid-0.3.0"  }, #needs to be modified
+			  
           }
 
           @benchmark_view =
