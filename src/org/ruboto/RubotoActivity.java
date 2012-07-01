@@ -128,10 +128,14 @@ public class RubotoActivity extends android.app.Activity {
     protected void loadScript() {
         try {
             if (scriptName != null) {
-                new Script(scriptName).execute();
                 String rubyClassName = Script.toCamelCase(scriptName);
                 System.out.println("Looking for Ruby class: " + rubyClassName);
                 Object rubyClass = Script.get(rubyClassName);
+                if (rubyClass == null) {
+                    System.out.println("Loading script: " + scriptName);
+                    new Script(scriptName).execute();
+                }
+                rubyClass = Script.get(rubyClassName);
                 if (rubyClass != null) {
                     System.out.println("Instanciating Ruby class: " + rubyClassName);
                     Script.put("$java_activity", this);
