@@ -54,16 +54,17 @@ public class RubotoBroadcastReceiver extends android.content.BroadcastReceiver {
     public void onReceive(android.content.Context context, android.content.Intent intent) {
         try {
             System.out.println("onReceive: " + rubyInstance);
-            JRubyAdapter.put("$context", context);
-            JRubyAdapter.put("$broadcast_receiver", this);
-            JRubyAdapter.put("$intent", intent);
             if (rubyInstance != null) {
-            	JRubyAdapter.exec("$ruby_broadcast_receiver.on_receive($context, $intent)");
+            	JRubyAdapter.callMethod(rubyInstance, "on_receive", new Object[]{context, intent});
             } else {
+            	JRubyAdapter.put("$context", context);
+            	JRubyAdapter.put("$broadcast_receiver", this);
+            	JRubyAdapter.put("$intent", intent);
             	JRubyAdapter.execute("$broadcast_receiver.on_receive($context, $intent)");
             }
         } catch(Exception e) {
             e.printStackTrace();
         }
     }
+
 }	
