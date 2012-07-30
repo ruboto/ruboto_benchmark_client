@@ -1,27 +1,23 @@
-require 'ruboto/activity'
 require 'ruboto/widget'
 require 'ruboto/util/toast'
 require 'ruboto/util/stack'
 
 ruboto_import_widgets :Button, :LinearLayout, :Spinner, :TextView
 
-java_import android.view.Gravity
 java_import java.lang.System
 
 class StartupTimerActivity
-  include Ruboto::Activity
-
   def on_create(bundle)
     set_title "Ruboto Benchmarks #{package_manager.getPackageInfo($package_name, 0).versionName}"
 
     layout_start = System.currentTimeMillis
     self.content_view =
-        linear_layout :orientation => :vertical, :gravity => Gravity::CENTER do
+        linear_layout :orientation => :vertical, :gravity => :center do
           button_weight = 1
           button_size = [Java::android.util.TypedValue::COMPLEX_UNIT_PT, 20]
-          button_layout = {:weight= => button_weight, :height= => :fill_parent, :width= => :fill_parent}
+          button_layout = {:weight= => button_weight, :height= => :match_parent, :width= => :match_parent}
 
-          @duration_view = text_view :id => 43, :text => "", :gravity => Gravity::CENTER, :layout => button_layout,
+          @duration_view = text_view :id => 43, :text => "", :gravity => :center, :layout => button_layout,
                                      :text_size => [Java::android.util.TypedValue::COMPLEX_UNIT_PT, 30]
           benchmarks = {
               'Startup' => proc {},
@@ -72,16 +68,16 @@ class StartupTimerActivity
     @duration_view.text = "#{$benchmarks['Startup']} ms"
   end
 
-  private
-
-  def fib(n)
-    n <= 2 ? 1 : fib(n-2) + fib(n-1)
-  end
-
   def finish
     super
     java.lang.System.runFinalizersOnExit(true)
     java.lang.System.exit(0)
+  end
+
+  private
+
+  def fib(n)
+    n <= 2 ? 1 : fib(n-2) + fib(n-1)
   end
 
   def benchmark(benchmark_name, &block)
@@ -90,7 +86,7 @@ class StartupTimerActivity
       return
     end
     message = "Running '#{benchmark_name}' benchmark..."
-    loadingDialog = android.app.ProgressDialog.show(@java_instance, nil, message, true, true)
+    loadingDialog = android.app.ProgressDialog.show(self, nil, message, true, true)
     loadingDialog.canceled_on_touch_outside = false
     getWindow().addFlags(android.view.WindowManager::LayoutParams::FLAG_KEEP_SCREEN_ON)
     puts message
