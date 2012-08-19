@@ -160,11 +160,11 @@ public class RubotoActivity extends android.app.Activity {
                         if (!rubyClassName.equals(getClass().getSimpleName())) {
                             System.out.println("Script defines methods on meta class");
                             // FIXME(uwe): Simplify when we stop support for RubotoCore 0.4.7
-                            if (true || isJRubyPreOneSeven() || isRubyOneEight()) {
+                            if (isJRubyPreOneSeven() || isRubyOneEight()) {
                                 JRubyAdapter.put("$java_instance", this);
                                 JRubyAdapter.put(rubyClassName, JRubyAdapter.runScriptlet("class << $java_instance; self; end"));
                             } else if (isJRubyOneSeven() && isRubyOneNine()) {
-                                // FIXME(uwe): Why does not singleton_class method use work?
+                                JRubyAdapter.runScriptlet("Java::" + getClass().getName() + ".__persistent__ = true");
                                 JRubyAdapter.put(rubyClassName, JRubyAdapter.runRubyMethod(this, "singleton_class"));
                             } else {
                                 throw new RuntimeException("Unknown JRuby/Ruby version: " + JRubyAdapter.get("JRUBY_VERSION") + "/" + JRubyAdapter.get("RUBY_VERSION"));
@@ -177,10 +177,13 @@ public class RubotoActivity extends android.app.Activity {
                             System.out.println("Script contains class definition");
                             if (rubyClassName.equals(getClass().getSimpleName())) {
                                 System.out.println("Script has separate Java class");
+                                // FIXME(uwe): Simplify when we stop support for JRuby < 1.7.0
+                                if (!isJRubyPreOneSeven()) {
+                                    JRubyAdapter.runScriptlet("Java::" + getClass().getName() + ".__persistent__ = true");
+                                }
                                 JRubyAdapter.put(rubyClassName, JRubyAdapter.runScriptlet("Java::" + getClass().getName()));
                             }
-                            // FIXME(uwe):  Why does this fail when running the navigation by class name test? (uses singleton class)
-                            // System.out.println("Set class: " + JRubyAdapter.get(rubyClassName));
+                            System.out.println("Set class: " + JRubyAdapter.get(rubyClassName));
                         }
                         JRubyAdapter.setScriptFilename(scriptName);
                         JRubyAdapter.runScriptlet(script);
@@ -191,7 +194,7 @@ public class RubotoActivity extends android.app.Activity {
                     // We have a predefined Ruby class without corresponding Ruby source file.
                     System.out.println("Create separate Ruby instance for class: " + rubyClass);
                     rubyInstance = JRubyAdapter.runRubyMethod(rubyClass, "new");
-                    JRubyAdapter.runRubyMethod(this, "instance_variable_set", "ruboto_java_instance", this);
+                    JRubyAdapter.runRubyMethod(rubyInstance, "instance_variable_set", "@ruboto_java_instance", this);
                 } else {
                     // Neither script file nor predefined class
                     throw new RuntimeException("Either script or predefined class must be present.");

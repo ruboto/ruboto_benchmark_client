@@ -64,6 +64,7 @@ public class EntryPointActivity extends org.ruboto.RubotoActivity {
                     	    receiver = null;
                         }
                         showProgress();
+                        StartupTimerActivity.platformInstallationDone = System.currentTimeMillis();
                         initJRuby(false);
                     }
                 }
@@ -112,6 +113,7 @@ public class EntryPointActivity extends org.ruboto.RubotoActivity {
                     runOnUiThread(new Runnable() {
                         public void run() {
                             if (firstTime) {
+                                StartupTimerActivity.platformInstallationStart = System.currentTimeMillis();
                                 Log.d("onResume: Checking JRuby - IN UI thread");
                                 try {
                                     setContentView(Class.forName(getPackageName() + ".R$layout").getField("get_ruboto_core").getInt(null));

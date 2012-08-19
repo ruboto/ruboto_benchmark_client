@@ -21,9 +21,11 @@ class StartupTimerActivity
                                      :text_size => [Java::android.util.TypedValue::COMPLEX_UNIT_PT, 30]
           benchmarks = {
               'Startup' => proc {},
+              'RubotoCore Install' => proc {},
               'Layout' => proc {},
               'JRuby Runtime pre' => proc {},
               'JRuby Runtime load' => proc {},
+              'Platform Runtime load' => proc {},
               'JRuby Runtime prep' => proc {},
               'Script load' => proc {},
               'Script resume' => proc {},
@@ -31,6 +33,7 @@ class StartupTimerActivity
               'require active_record' => proc { require 'active_record' },
               'require AS dependencies' => proc { require 'active_support/deprecation'; require 'active_support/dependencies' },
               'Fibonacci , n=20' => proc { fib(20) },
+              'Fibonacci, n=25' => proc { fib(25) },
               'TicTacToe' => proc { require 'tictactoe'; Game.new },
               'NOOP' => proc {},
         		  'require json' => proc { require 'json/pure' },
@@ -57,7 +60,9 @@ class StartupTimerActivity
       $package.StartupTimerActivity.stop = System.currentTimeMillis
       require 'report'
       $benchmarks = {}
-      $benchmarks['Startup'] = $package.StartupTimerActivity.stop - $package.StartupTimerActivity::START
+      ruboto_core_install = $package.StartupTimerActivity.platformInstallationDone.to_i - $package.StartupTimerActivity.platformInstallationDone.to_i
+      $benchmarks['RubotoCore Install'] = ruboto_core_install
+      $benchmarks['Startup'] = $package.StartupTimerActivity.stop - $package.StartupTimerActivity::START - ruboto_core_install - @layout_duration
       $benchmarks['Layout'] = @layout_duration
       $benchmarks['JRuby Runtime pre'] = $package.StartupTimerActivity.jrubyStart - $package.StartupTimerActivity::START
       $benchmarks['JRuby Runtime load'] = $package.StartupTimerActivity.jrubyLoaded - $package.StartupTimerActivity.jrubyStart

@@ -34,10 +34,11 @@ class Report
         Log.i 'RubotoStartupTimer', 'Post startup time'
         create_method = HttpPost.new("#{SERVER_BASE}")
         create_method.setHeader("Content-Type", "application/x-www-form-urlencoded")
+        compile_mode = System.getProperty("jruby.compile.mode")
         list = [
             BasicNameValuePair.new('measurement[package]', $package_name),
             BasicNameValuePair.new('measurement[package_version]', activity.package_manager.getPackageInfo($package_name, 0).versionName),
-            BasicNameValuePair.new('measurement[test]', test_name),
+            BasicNameValuePair.new('measurement[test]', "#{test_name}#{" #{compile_mode}" unless compile_mode == "OFF"}"),
             BasicNameValuePair.new('measurement[duration]', duration.to_s),
             BasicNameValuePair.new('measurement[manufacturer]', android.os.Build::MANUFACTURER),
             BasicNameValuePair.new('measurement[model]', android.os.Build::MODEL),

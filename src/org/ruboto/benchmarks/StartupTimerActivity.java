@@ -9,6 +9,8 @@ public class StartupTimerActivity extends org.ruboto.EntryPointActivity {
     public static long fireRubotoActivity;
     public static long scriptLoaded;
     public static Long stop;
+    public static long platformInstallationStart;
+    public static long platformInstallationDone;
 
 	public void onCreate(Bundle bundle) {
 		setScriptName("startup_timer_activity.rb");

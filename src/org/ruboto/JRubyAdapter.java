@@ -134,9 +134,17 @@ public class JRubyAdapter {
 
     public static Object runRubyMethod(Object receiver, String methodName, Object... args) {
         try {
+            // FIXME(uwe):  Simplify when we stop supporting JRuby < 1.7.0
             if (isJRubyPreOneSeven()) {
-                Method m = ruby.getClass().getMethod("callMethod", Object.class, String.class, Object[].class, Class.class);
-                return m.invoke(ruby, receiver, methodName, args, null);
+                if (args.length == 0) {
+                    Method m = ruby.getClass().getMethod("callMethod", Object.class, String.class, Class.class);
+                    // System.out.println("Calling callMethod(" + receiver + ", " + methodName + ", " + Object.class + ")");
+                    return m.invoke(ruby, receiver, methodName, Object.class);
+                } else {
+                    Method m = ruby.getClass().getMethod("callMethod", Object.class, String.class, Object[].class, Class.class);
+                    // System.out.println("Calling callMethod(" + receiver + ", " + methodName + ", " + args + ", " + Object.class + ")");
+                    return m.invoke(ruby, receiver, methodName, args, Object.class);
+                }
             } else {
                 Method m = ruby.getClass().getMethod("runRubyMethod", Class.class, Object.class, String.class, Object[].class);
                 return m.invoke(ruby, Object.class, receiver, methodName, args);
@@ -197,19 +205,8 @@ public class JRubyAdapter {
 
     public static Object runScriptlet(String code) {
         try {
-            try {
-                Method runScriptletMethod = ruby.getClass().getMethod("runScriptlet", String.class);
-                return runScriptletMethod.invoke(ruby, code);
-            } catch (java.lang.reflect.InvocationTargetException ite) {
-                // FIXME(uwe):  Remove special handling when JRUBY-6792 is fixed
-                if (ite.getCause() instanceof java.lang.ArrayIndexOutOfBoundsException) {
-                    Log.e("Got exception: " + ite.getCause());
-                    Log.e("Retrying once.");
-                    Method runScriptletMethod = ruby.getClass().getMethod("runScriptlet", String.class);
-                    return runScriptletMethod.invoke(ruby, code);
-                }
-                throw ite;
-            }
+            Method runScriptletMethod = ruby.getClass().getMethod("runScriptlet", String.class);
+            return runScriptletMethod.invoke(ruby, code);
         } catch (NoSuchMethodException nsme) {
             throw new RuntimeException(nsme);
         } catch (IllegalAccessException iae) {
@@ -238,18 +235,20 @@ public class JRubyAdapter {
             // END Ruboto HeapAlloc
             setDebugBuild(appContext);
             Log.d("Setting up JRuby runtime (" + (isDebugBuild ? "DEBUG" : "RELEASE") + ")");
+            System.setProperty("jruby.compile.mode", "OFFIR"); // OFF OFFIR
             System.setProperty("jruby.bytecode.version", "1.6");
             System.setProperty("jruby.interfaces.useProxy", "true");
             System.setProperty("jruby.management.enabled", "false");
             System.setProperty("jruby.objectspace.enabled", "false");
             System.setProperty("jruby.thread.pooling", "true");
             System.setProperty("jruby.native.enabled", "false");
-            // System.setProperty("jruby.compat.version", "RUBY1_8"); // RUBY1_9 is the default
+            // System.setProperty("jruby.compat.version", "RUBY1_8"); // RUBY1_9 is the default in JRuby 1.7
+            System.setProperty("jruby.ir.passes", "LocalOptimizationPass,DeadCodeElimination"); // RUBY1_9 is the default
+            System.setProperty("jruby.backtrace.style", "raw"); // normal raw full mri
 
             // Uncomment these to debug Ruby source loading
             // System.setProperty("jruby.debug.loadService", "true");
             // System.setProperty("jruby.debug.loadService.timing", "true");
-
 
             ClassLoader classLoader;
             Class<?> scriptingContainerClass;
@@ -296,14 +295,6 @@ public class JRubyAdapter {
                          .getConstructor(scopeClass, behaviorClass)
                          .newInstance(Enum.valueOf(scopeClass, localContextScope), 
                                       Enum.valueOf(behaviorClass, localVariableBehavior));
-
-                Class compileModeClass = Class.forName("org.jruby.RubyInstanceConfig$CompileMode", true, classLoader);
-                callScriptingContainerMethod(Void.class, "setCompileMode", Enum.valueOf(compileModeClass, "OFF"));
-
-                // Class traceTypeClass = Class.forName("org.jruby.runtime.backtrace.TraceType", true, classLoader);
-                // Method traceTypeForMethod = traceTypeClass.getMethod("traceTypeFor", String.class);
-                // Object traceTypeRaw = traceTypeForMethod.invoke(null, "raw");
-                // callScriptingContainerMethod(Void.class, "setTraceType", traceTypeRaw);
 
                 // FIXME(uwe): Write tutorial on profiling.
                 // container.getProvider().getRubyInstanceConfig().setProfilingMode(mode);
@@ -405,9 +396,24 @@ public class JRubyAdapter {
         ruby = null;
     }
 
-    // FIXME(uwe):  Remove when we stop supporting pre JRuby 1.7.0
-    private static boolean isJRubyPreOneSeven() {
-        return ((String)get("JRUBY_VERSION")).equals("1.7.0.dev") || ((String)get("JRUBY_VERSION")).equals("1.6.7");
+    // FIXME(uwe):  Remove when we stop supporting JRuby < 1.7.0
+    @Deprecated public static boolean isJRubyPreOneSeven() {
+        return ((String)get("JRUBY_VERSION")).equals("1.7.0.dev") || ((String)get("JRUBY_VERSION")).startsWith("1.6.");
+    }
+
+    // FIXME(uwe):  Remove when we stop supporting JRuby < 1.7.0
+    @Deprecated public static boolean isJRubyOneSeven() {
+        return !isJRubyPreOneSeven() && ((String)get("JRUBY_VERSION")).startsWith("1.7.");
+    }
+
+    // FIXME(uwe):  Remove when we stop supporting Ruby 1.8
+    @Deprecated public static boolean isRubyOneEight() {
+        return ((String)get("RUBY_VERSION")).startsWith("1.8.");
+    }
+
+    // FIXME(uwe):  Remove when we stop supporting Ruby 1.8
+    @Deprecated public static boolean isRubyOneNine() {
+        return ((String)get("RUBY_VERSION")).startsWith("1.9.");
     }
 
     static void printStackTrace(Throwable t) {
@@ -424,7 +430,7 @@ public class JRubyAdapter {
 
     private static String scriptsDirName(Context context) {
         File storageDir = null;
-        if (JRubyAdapter.isDebugBuild()) {
+        if (isDebugBuild()) {
 
             // FIXME(uwe): Simplify this as soon as we drop support for android-7
             if (android.os.Build.VERSION.SDK_INT >= 8) {
@@ -432,15 +438,15 @@ public class JRubyAdapter {
                     Method method = context.getClass().getMethod("getExternalFilesDir", String.class);
                     storageDir = (File) method.invoke(context, (Object) null);
                 } catch (SecurityException e) {
-                    JRubyAdapter.printStackTrace(e);
+                    printStackTrace(e);
                 } catch (NoSuchMethodException e) {
-                    JRubyAdapter.printStackTrace(e);
+                    printStackTrace(e);
                 } catch (IllegalArgumentException e) {
-                    JRubyAdapter.printStackTrace(e);
+                    printStackTrace(e);
                 } catch (IllegalAccessException e) {
-                    JRubyAdapter.printStackTrace(e);
+                    printStackTrace(e);
                 } catch (InvocationTargetException e) {
-                    JRubyAdapter.printStackTrace(e);
+                    printStackTrace(e);
                 }
             } else {
                 storageDir = new File(Environment.getExternalStorageDirectory(), "Android/data/" + context.getPackageName() + "/files");
