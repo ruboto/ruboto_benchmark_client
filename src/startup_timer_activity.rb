@@ -32,7 +32,7 @@ class StartupTimerActivity
               'require yaml' => proc { require 'yaml' },
               'require active_record' => proc { require 'active_record' },
               'require AS dependencies' => proc { require 'active_support/deprecation'; require 'active_support/dependencies' },
-              'Fibonacci , n=20' => proc { fib(20) },
+              'Fibonacci, n=20' => proc { fib(20) },
               'Fibonacci, n=25' => proc { fib(25) },
               'TicTacToe' => proc { require 'tictactoe'; Game.new },
               'NOOP' => proc {},
