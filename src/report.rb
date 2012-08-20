@@ -34,17 +34,18 @@ class Report
         Log.i 'RubotoStartupTimer', 'Post startup time'
         create_method = HttpPost.new("#{SERVER_BASE}")
         create_method.setHeader("Content-Type", "application/x-www-form-urlencoded")
-        compile_mode = System.getProperty("jruby.compile.mode")
         list = [
             BasicNameValuePair.new('measurement[package]', $package_name),
             BasicNameValuePair.new('measurement[package_version]', activity.package_manager.getPackageInfo($package_name, 0).versionName),
-            BasicNameValuePair.new('measurement[test]', "#{test_name}#{" #{compile_mode}" unless compile_mode == "OFF"}"),
+            BasicNameValuePair.new('measurement[test]', test_name),
             BasicNameValuePair.new('measurement[duration]', duration.to_s),
             BasicNameValuePair.new('measurement[manufacturer]', android.os.Build::MANUFACTURER),
             BasicNameValuePair.new('measurement[model]', android.os.Build::MODEL),
             BasicNameValuePair.new('measurement[android_version]', android.os.Build::VERSION::RELEASE),
-            BasicNameValuePair.new('measurement[ruboto_platform_version]', activity.package_manager.getPackageInfo('org.ruboto.core', 0).versionName),
+            BasicNameValuePair.new('measurement[ruboto_platform_version]', org.ruboto.JRubyAdapter.usesPlatformApk() ? activity.package_manager.getPackageInfo('org.ruboto.core', 0).versionName : "JRuby #{org.ruboto.JRubyAdapter.get("JRUBY_VERSION")}"),
             BasicNameValuePair.new('measurement[ruboto_app_version]', Ruboto::VERSION),
+            BasicNameValuePair.new('measurement[compile_mode]', System.getProperty("jruby.compile.mode")),
+            BasicNameValuePair.new('measurement[ruby_version]', System.getProperty("jruby.compat.version")),
         ]
         entity = UrlEncodedFormEntity.new(list)
         create_method.setEntity(entity)
