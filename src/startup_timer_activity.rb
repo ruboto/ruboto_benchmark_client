@@ -8,7 +8,7 @@ java_import java.lang.System
 
 class StartupTimerActivity
   def on_create(bundle)
-    set_title "Ruboto Benchmarks #{package_manager.getPackageInfo($package_name, 0).versionName}"
+    set_title "Ruboto Benchmarks #{package_manager.getPackageInfo($package_name, 0).versionName} #{System.getProperty("jruby.compat.version").capitalize} #{System.getProperty("jruby.compile.mode").downcase}"
 
     layout_start = System.currentTimeMillis
     self.content_view =
