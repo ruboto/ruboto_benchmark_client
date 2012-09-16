@@ -31,6 +31,7 @@ public class Script {
     public static String toCamelCase(String s) {
         String[] parts = s.replace(".rb", "").split("_");
         for (int i = 0 ; i < parts.length ; i++) {
+            if (parts[i].length() == 0) continue;
             parts[i] = parts[i].substring(0,1).toUpperCase() + parts[i].substring(1);
         }
         return java.util.Arrays.toString(parts).replace(", ", "").replaceAll("[\\[\\]]", "");
@@ -39,12 +40,12 @@ public class Script {
     public static String toSnakeCase(String s) {
         return s.replaceAll(
             String.format("%s|%s|%s",
-                "(?<=[A-Z])(?=[A-Z][a-z])",
+                "(?<=[A-Z])(?=[A-Z][a-z0-9])",
                 "(?<=[^A-Z])(?=[A-Z])",
-                "(?<=[A-Za-z])(?=[^A-Za-z])"
+                "(?<=[A-Za-z0-9])(?=[^A-Za-z0-9])"
             ),
             "_"
-        ).toLowerCase();
+        ).replace("__", "_").toLowerCase();
     }
 
     // Private static methods
@@ -109,7 +110,7 @@ public class Script {
     boolean exists() {
         for (String dir : scriptsDir) {
             System.out.println("Checking file: " + dir + "/" + name);
-            if (new File(scriptsDir + "/" + name).exists()) {
+            if (new File(dir + "/" + name).exists()) {
                 return true;
             }
         }
@@ -132,9 +133,13 @@ public class Script {
         InputStream is = null;
         BufferedReader buffer = null;
         try {
-            if (new File(scriptsDir + "/" + name).exists()) {
-                is = new java.io.FileInputStream(scriptsDir + "/" + name);
-            } else {
+            for (String dir : scriptsDir) {
+                System.out.println("Checking file: " + dir + "/" + name);
+                if (new File(dir + "/" + name).exists()) {
+                    is = new java.io.FileInputStream(dir + "/" + name);
+                }
+            }
+            if (is == null) {
                 is = getClass().getClassLoader().getResourceAsStream(name);
             }
             buffer = new BufferedReader(new java.io.InputStreamReader(is), 8192);

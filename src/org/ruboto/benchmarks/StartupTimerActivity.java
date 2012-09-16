@@ -13,7 +13,7 @@ public class StartupTimerActivity extends org.ruboto.EntryPointActivity {
     public static long platformInstallationDone;
 
 	public void onCreate(Bundle bundle) {
-		setScriptName("startup_timer_activity.rb");
+		getScriptInfo().setRubyClassName(getClass().getSimpleName());
 	    super.onCreate(bundle);
 	}
 }

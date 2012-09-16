@@ -155,7 +155,7 @@ public class EntryPointActivity extends org.ruboto.RubotoActivity {
         StartupTimerActivity.fireRubotoActivity = System.currentTimeMillis();
         appStarted = true;
         Log.i("Starting activity");
-        loadScript();
+        ScriptLoader.loadScript(this, args[0]);
         onStart();
         StartupTimerActivity.scriptLoaded = System.currentTimeMillis();
         super.onResume();
