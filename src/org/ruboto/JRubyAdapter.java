@@ -219,7 +219,11 @@ public class JRubyAdapter {
             throw new RuntimeException(iae);
         } catch (java.lang.reflect.InvocationTargetException ite) {
             if (isDebugBuild) {
-                throw ((RuntimeException) ite.getCause());
+                if (ite.getCause() instanceof RuntimeException) {
+                    throw ((RuntimeException) ite.getCause());
+                } else {
+                    throw ((Error) ite.getCause());
+                }
             } else {
                 return null;
             }
@@ -327,11 +331,21 @@ public class JRubyAdapter {
                   setOutputStream(output);
                 }
 
-                String jrubyHome = "file:" + apkName + "!";
+                String jrubyHome = "file:" + apkName + "!/jruby.home";
+
+                // FIXME(uwe): Remove when we stop supporting RubotoCore 0.4.7
+                Log.i("RUBOTO_CORE_VERSION_NAME: " + RUBOTO_CORE_VERSION_NAME);
+                if (RUBOTO_CORE_VERSION_NAME != null &&
+                        (RUBOTO_CORE_VERSION_NAME.equals("0.4.7") || RUBOTO_CORE_VERSION_NAME.equals("0.4.8"))) {
+                    jrubyHome = "file:" + apkName + "!";
+                }
+                // EMXIF
+
                 Log.i("Setting JRUBY_HOME: " + jrubyHome);
                 System.setProperty("jruby.home", jrubyHome);
 
                 addLoadPath(scriptsDirName(appContext));
+    	        put("$package_name", appContext.getPackageName());
 
                 initialized = true;
             } catch (ClassNotFoundException e) {
@@ -362,9 +376,7 @@ public class JRubyAdapter {
         return RUBOTO_CORE_VERSION_NAME != null;
     }
 
-    // Private methods
-
-    private static Boolean addLoadPath(String scriptsDir) {
+    public static Boolean addLoadPath(String scriptsDir) {
         if (new File(scriptsDir).exists()) {
             Log.i("Added directory to load path: " + scriptsDir);
             Script.addDir(scriptsDir);
@@ -377,6 +389,8 @@ public class JRubyAdapter {
             return false;
         }
     }
+
+    // Private methods
 
     @SuppressWarnings("unchecked")
     private static <T> T callScriptingContainerMethod(Class<T> returnType, String methodName, Object... args) {
@@ -486,15 +500,15 @@ public class JRubyAdapter {
         }
     }
 
-    private static void setLocalContextScope(String val) {
+    public static void setLocalContextScope(String val) {
         localContextScope = val;
     }
 
-    private static void setLocalVariableBehavior(String val) {
+    public static void setLocalVariableBehavior(String val) {
         localVariableBehavior = val;
     }
 
-    private static void setOutputStream(PrintStream out) {
+    public static void setOutputStream(PrintStream out) {
       if (ruby == null) {
         output = out;
       } else {

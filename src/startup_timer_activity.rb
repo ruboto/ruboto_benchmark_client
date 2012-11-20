@@ -8,6 +8,7 @@ java_import java.lang.System
 
 class StartupTimerActivity
   def on_create(bundle)
+    super
     set_title "Ruboto Benchmarks #{package_manager.getPackageInfo($package_name, 0).versionName} #{System.getProperty("jruby.compat.version").capitalize} #{System.getProperty("jruby.compile.mode").downcase}"
 
     layout_start = System.currentTimeMillis
@@ -56,6 +57,7 @@ class StartupTimerActivity
   end
 
   def on_resume
+    super
     if $package.StartupTimerActivity.stop.nil?
       $package.StartupTimerActivity.stop = System.currentTimeMillis
       require 'report'

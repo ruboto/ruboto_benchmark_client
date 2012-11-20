@@ -1,4 +1,8 @@
-if `ant -version` !~ /version (\d+)\.(\d+)\.(\d+)/ || $1.to_i < 1 || ($1.to_i == 1 && $2.to_i < 8)
+require 'rbconfig'
+
+ANT_CMD = (RbConfig::CONFIG['host_os'] =~ /mswin|mingw/i) ? "ant.bat" : "ant"
+
+if `#{ANT_CMD} -version` !~ /version (\d+)\.(\d+)\.(\d+)/ || $1.to_i < 1 || ($1.to_i == 1 && $2.to_i < 8)
   puts "ANT version 1.8.0 or later required.  Version found: #{$1}.#{$2}.#{$3}"
   exit 1
 end
@@ -182,7 +186,7 @@ task :test => :uninstall do
   Dir.chdir('test') do
     puts 'Running tests'
     sh "adb uninstall #{package}.tests"
-    sh "ant instrument install test"
+    sh "#{ANT_CMD} instrument install test"
   end
 end
 
@@ -190,9 +194,9 @@ namespace :test do
   task :quick => :update_scripts do
     Dir.chdir('test') do
       puts 'Running quick tests'
-      sh 'ant instrument'
-      sh 'ant installi'
-      sh "ant run-tests-quick"
+      sh "#{ANT_CMD} instrument"
+      sh "#{ANT_CMD} installi"
+      sh "#{ANT_CMD} run-tests-quick"
     end
   end
 end
@@ -266,11 +270,19 @@ file BUNDLE_JAR => [GEM_FILE, GEM_LOCK_FILE] do
     Dir['*'].each do |gem_lib|
       Dir.chdir "#{gem_lib}/lib" do
         Dir['**/*.jar'].each do |jar|
+          unless jar =~ /sqlite-jdbc/
+            puts "Expanding #{gem_lib} #{jar} into #{BUNDLE_JAR}"
+            `jar xf #{jar}`
+          end
           if jar == 'arjdbc/jdbc/adapter_java.jar'
             jar_load_code = <<-END_CODE
 require 'jruby'
 Java::arjdbc.jdbc.AdapterJavaService.new.basicLoad(JRuby.runtime)
             END_CODE
+            classes = Dir['arjdbc/**/*']
+            dbs = /db2|derby|firebird|h2|hsqldb|informix|mimer|mssql|mysql|oracle|postgres|sybase/i
+            files = classes.grep(dbs)
+            FileUtils.rm_f(files)
           elsif jar =~ /shared\/jopenssl.jar$/
             jar_load_code = <<-END_CODE
 require 'jruby'
@@ -280,10 +292,6 @@ Java::JopensslService.new.basicLoad(JRuby.runtime)
             END_CODE
           else
             jar_load_code = ''
-          end
-          unless jar =~ /sqlite-jdbc/
-            puts "Expanding #{gem_lib} #{jar} into #{BUNDLE_JAR}"
-            `jar xf #{jar}`
           end
           puts "Writing dummy JAR file #{jar + '.rb'}"
           File.open(jar + '.rb', 'w') { |f| f << jar_load_code }
@@ -398,9 +406,9 @@ def build_apk(t, release)
     puts "Forcing rebuild of #{apk_file}."
   end
   if release
-    sh 'ant release'
+    sh "#{ANT_CMD} release"
   else
-    sh 'ant debug'
+    sh "#{ANT_CMD} debug"
   end
   return true
 end
