@@ -1,3 +1,4 @@
+require 'ruboto/activity'
 require 'ruboto/widget'
 require 'ruboto/util/toast'
 require 'ruboto/util/stack'
