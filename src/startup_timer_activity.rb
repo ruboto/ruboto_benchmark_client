@@ -10,7 +10,7 @@ java_import java.lang.System
 class StartupTimerActivity
   def on_create(bundle)
     super
-    set_title "Ruboto Benchmarks #{package_manager.getPackageInfo($package_name, 0).versionName} #{System.getProperty("jruby.compat.version").capitalize} #{System.getProperty("jruby.compile.mode").downcase}"
+    set_title "Ruboto Benchmarks #{package_manager.getPackageInfo($package_name, 0).versionName} #{System.getProperty('jruby.compat.version').capitalize} #{System.getProperty("jruby.compile.mode").downcase}"
 
     layout_start = System.currentTimeMillis
     self.content_view =
@@ -19,7 +19,7 @@ class StartupTimerActivity
           button_size = [Java::android.util.TypedValue::COMPLEX_UNIT_PT, 20]
           button_layout = {:weight= => button_weight, :height= => :match_parent, :width= => :match_parent}
 
-          @duration_view = text_view :id => 43, :text => "", :gravity => :center, :layout => button_layout,
+          @duration_view = text_view :id => 43, :text => '', :gravity => :center, :layout => button_layout,
                                      :text_size => [Java::android.util.TypedValue::COMPLEX_UNIT_PT, 30]
           benchmarks = {
               'Startup' => proc {},

@@ -15,14 +15,14 @@ GEM
     arel (2.2.3)
     builder (3.0.0)
     i18n (0.6.0)
-    json (1.7.3)
+    json (1.7.3-java)
     multi_json (1.2.0)
     sqldroid (0.3.0)
     tmail (1.2.7.1)
     tzinfo (0.3.33)
 
 PLATFORMS
-  ruby
+  java
 
 DEPENDENCIES
   activerecord (~> 3.1.3)

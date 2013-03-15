@@ -253,7 +253,7 @@ public class JRubyAdapter {
             System.setProperty("jruby.objectspace.enabled", "false");
             System.setProperty("jruby.thread.pooling", "true");
             System.setProperty("jruby.native.enabled", "false");
-            System.setProperty("jruby.compat.version", new String[]{"RUBY1_8", "RUBY1_9"}[((int) (Math.random() * 2))]);
+            System.setProperty("jruby.compat.version", new String[]{"RUBY1_8", "RUBY1_9", "RUBY2_0"}[((int) (Math.random() * 2))]);
             System.setProperty("jruby.ir.passes", "LocalOptimizationPass,DeadCodeElimination");
             System.setProperty("jruby.backtrace.style", "normal"); // normal raw full mri
 
@@ -308,6 +308,45 @@ public class JRubyAdapter {
             }
 
             try {
+                //////////////////////////////////
+                //
+                // Set jruby.home
+                //
+
+                String jrubyHome = "file:" + apkName + "!/jruby.home";
+
+                // FIXME(uwe): Remove when we stop supporting RubotoCore 0.4.7
+                Log.i("RUBOTO_CORE_VERSION_NAME: " + RUBOTO_CORE_VERSION_NAME);
+                if (RUBOTO_CORE_VERSION_NAME != null &&
+                        (RUBOTO_CORE_VERSION_NAME.equals("0.4.7") || RUBOTO_CORE_VERSION_NAME.equals("0.4.8"))) {
+                    jrubyHome = "file:" + apkName + "!";
+                }
+                // EMXIF
+
+                Log.i("Setting JRUBY_HOME: " + jrubyHome);
+                // This needs to be set before the ScriptingContainer is initialized
+                System.setProperty("jruby.home", jrubyHome);
+
+                //////////////////////////////////
+                //
+                // Disable rubygems
+                //
+
+                Class rubyClass = Class.forName("org.jruby.Ruby", true, scriptingContainerClass.getClassLoader());
+                Class rubyInstanceConfigClass = Class.forName("org.jruby.RubyInstanceConfig", true, scriptingContainerClass.getClassLoader());
+
+                Object config = rubyInstanceConfigClass.getConstructor().newInstance();
+                rubyInstanceConfigClass.getMethod("setDisableGems", boolean.class).invoke(config, true);
+                rubyInstanceConfigClass.getMethod("setLoader", ClassLoader.class).invoke(config, classLoader);
+
+                // This will become the global runtime and be used by our ScriptingContainer
+                rubyClass.getMethod("newInstance", rubyInstanceConfigClass).invoke(null, config);
+
+                //////////////////////////////////
+                //
+                // Create the ScriptingContainer
+                //
+
                 Class scopeClass = Class.forName("org.jruby.embed.LocalContextScope", true, scriptingContainerClass.getClassLoader());
                 Class behaviorClass = Class.forName("org.jruby.embed.LocalVariableBehavior", true, scriptingContainerClass.getClassLoader());
 
@@ -325,9 +364,13 @@ public class JRubyAdapter {
 
                 Thread.currentThread().setContextClassLoader(classLoader);
 
-                String defaultCurrentDir = appContext.getFilesDir().getPath();
-                Log.d("Setting JRuby current directory to " + defaultCurrentDir);
-                callScriptingContainerMethod(Void.class, "setCurrentDirectory", defaultCurrentDir);
+                if (appContext.getFilesDir() != null) {
+                    String defaultCurrentDir = appContext.getFilesDir().getPath();
+                    Log.d("Setting JRuby current directory to " + defaultCurrentDir);
+                    callScriptingContainerMethod(Void.class, "setCurrentDirectory", defaultCurrentDir);
+                } else {
+                    Log.e("Unable to find app files dir!");
+                }
 
                 if (out != null) {
                   output = out;
@@ -336,21 +379,8 @@ public class JRubyAdapter {
                   setOutputStream(output);
                 }
 
-                String jrubyHome = "file:" + apkName + "!/jruby.home";
-
-                // FIXME(uwe): Remove when we stop supporting RubotoCore 0.4.7
-                Log.i("RUBOTO_CORE_VERSION_NAME: " + RUBOTO_CORE_VERSION_NAME);
-                if (RUBOTO_CORE_VERSION_NAME != null &&
-                        (RUBOTO_CORE_VERSION_NAME.equals("0.4.7") || RUBOTO_CORE_VERSION_NAME.equals("0.4.8"))) {
-                    jrubyHome = "file:" + apkName + "!";
-                }
-                // EMXIF
-
-                Log.i("Setting JRUBY_HOME: " + jrubyHome);
-                System.setProperty("jruby.home", jrubyHome);
-
                 addLoadPath(scriptsDirName(appContext));
-    	        put("$package_name", appContext.getPackageName());
+    	          put("$package_name", appContext.getPackageName());
 
                 initialized = true;
             } catch (ClassNotFoundException e) {
@@ -443,7 +473,8 @@ public class JRubyAdapter {
 
     // FIXME(uwe):  Remove when we stop supporting Ruby 1.8
     @Deprecated public static boolean isRubyOneNine() {
-        return ((String)get("RUBY_VERSION")).startsWith("1.9.");
+    String rv = ((String)get("RUBY_VERSION"));
+        return rv.startsWith("2.0.") || rv.startsWith("1.9.");
     }
 
     static void printStackTrace(Throwable t) {
