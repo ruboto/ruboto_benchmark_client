@@ -1,3 +1,5 @@
+require 'ruboto/version'
+
 class Report
   java_import android.content.Intent
   java_import android.net.Uri

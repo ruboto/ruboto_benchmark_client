@@ -239,9 +239,9 @@ public class JRubyAdapter {
         if (!initialized) {
             StartupTimerActivity.jrubyStart = System.currentTimeMillis();
             // BEGIN Ruboto HeapAlloc
-            @SuppressWarnings("unused")
-            byte[] arrayForHeapAllocation = new byte[13 * 1024 * 1024];
-            arrayForHeapAllocation = null;
+            // @SuppressWarnings("unused")
+            // byte[] arrayForHeapAllocation = new byte[13 * 1024 * 1024];
+            // arrayForHeapAllocation = null;
             // END Ruboto HeapAlloc
             setDebugBuild(appContext);
             Log.d("Setting up JRuby runtime (" + (isDebugBuild ? "DEBUG" : "RELEASE") + ")");
@@ -264,6 +264,11 @@ public class JRubyAdapter {
             // Used to enable JRuby to generate proxy classes
             System.setProperty("jruby.ji.proxyClassFactory", "org.ruboto.DalvikProxyClassFactory");
             System.setProperty("jruby.class.cache.path", appContext.getDir("dex", 0).getAbsolutePath());
+
+            // Workaround for bug in Android 2.2
+            // http://code.google.com/p/android/issues/detail?id=9431
+            // System.setProperty("java.net.preferIPv4Stack", "true");
+    		// System.setProperty("java.net.preferIPv6Addresses", "false");
 
             ClassLoader classLoader;
             Class<?> scriptingContainerClass;
@@ -443,14 +448,15 @@ public class JRubyAdapter {
 
     static void printStackTrace(Throwable t) {
         // TODO(uwe):  Simplify this when Issue #144 is resolved
-        try {
-            t.printStackTrace(output);
-        } catch (NullPointerException npe) {
+        // TODO(scott):  printStackTrace is causing too many problems
+        //try {
+        //    t.printStackTrace(output);
+        //} catch (NullPointerException npe) {
             // TODO(uwe): printStackTrace should not fail
             for (java.lang.StackTraceElement ste : t.getStackTrace()) {
                 output.append(ste.toString() + "\n");
             }
-        }
+        //}
     }
 
     private static String scriptsDirName(Context context) {
