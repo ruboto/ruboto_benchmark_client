@@ -10,15 +10,19 @@ java_import java.lang.System
 class StartupTimerActivity
   def on_create(bundle)
     super
-    set_title "Ruboto Benchmarks #{package_manager.getPackageInfo($package_name, 0).versionName} #{System.getProperty('jruby.compat.version').capitalize} #{System.getProperty("jruby.compile.mode").downcase}"
-
     layout_start = System.currentTimeMillis
+    set_title "Ruboto Benchmarks #{package_manager.getPackageInfo($package_name, 0).versionName}"
+
     self.content_view =
         linear_layout :orientation => :vertical, :gravity => :center do
           button_weight = 1
           button_size = [Java::android.util.TypedValue::COMPLEX_UNIT_PT, 20]
           button_layout = {:weight= => button_weight, :height= => :match_parent, :width= => :match_parent}
 
+          @params_view = text_view :id => 42,
+                                   :text => "#{System.getProperty('jruby.compat.version').capitalize} #{System.getProperty("jruby.compile.mode").downcase}",
+                                   :gravity => :center, :layout => button_layout,
+                                   :text_size => [Java::android.util.TypedValue::COMPLEX_UNIT_PT, 24]
           @duration_view = text_view :id => 43, :text => '', :gravity => :center, :layout => button_layout,
                                      :text_size => [Java::android.util.TypedValue::COMPLEX_UNIT_PT, 30]
           benchmarks = {
@@ -38,10 +42,10 @@ class StartupTimerActivity
               'Fibonacci, n=25' => proc { fib(25) },
               'TicTacToe' => proc { require 'tictactoe'; Game.new },
               'NOOP' => proc {},
-        		  'require json' => proc { require 'json/pure' },
-      			  'require tmail' => proc { require 'tmail' },			  
-##      			  'SQLdroid' => proc { require "sqldroid/version" ; require "sqldroid/sqldroid-0.3.0"  }, #needs to be modified
-			  
+              'require json' => proc { require 'json/pure' },
+              'require tmail' => proc { require 'tmail' },
+              ##      			  'SQLdroid' => proc { require "sqldroid/version" ; require "sqldroid/sqldroid-0.3.0"  }, #needs to be modified
+
           }
 
           @benchmark_view =
