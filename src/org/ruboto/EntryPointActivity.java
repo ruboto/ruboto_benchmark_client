@@ -15,15 +15,25 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+/**
+ * This Activity acts as an entry point to the app.  It must initialize the
+ * JRuby runtime before continuing its life cycle.
+ * While JRuby is initializing, a progress dialog is shown.
+ * If R.layout.splash is defined, by adding a res/layout/splash.xml file,
+ * this layout is displayed instead of the progress dialog.
+ */
 public class EntryPointActivity extends org.ruboto.RubotoActivity {
     private int splash = 0;
     private ProgressDialog loadingDialog;
     private boolean dialogCancelled = false;
     private BroadcastReceiver receiver;
+
+    // FIXME(uwe):  Remove this field?  Duplicated by ScriptInfo.isLoaded() ?
     protected boolean appStarted = false;
+    // EMXIF
 
 	public void onCreate(Bundle bundle) {
-        Log.d("onCreate: ");
+        Log.d("EntryPointActivity onCreate:");
 
 	    try {
     		splash = Class.forName(getPackageName() + ".R$layout").getField("splash").getInt(null);
@@ -33,6 +43,9 @@ public class EntryPointActivity extends org.ruboto.RubotoActivity {
 
         if (JRubyAdapter.isInitialized()) {
             appStarted = true;
+		} else {
+		    showProgress();
+            initJRuby(true);
 		}
 	    super.onCreate(bundle);
 	}
@@ -52,27 +65,6 @@ public class EntryPointActivity extends org.ruboto.RubotoActivity {
     	    fireRubotoActivity();
         } else {
             Log.d("Not initialized");
-            showProgress();
-            receiver = new BroadcastReceiver(){
-                public void onReceive(Context context, Intent intent) {
-                    Log.i("received broadcast: " + intent);
-                    Log.i("URI: " + intent.getData());
-                    if (intent.getData().toString().equals("package:org.ruboto.core")) {
-                        Toast.makeText(context,"Ruboto Core is now installed.",Toast.LENGTH_SHORT).show();
-                        if (receiver != null) {
-                    	    unregisterReceiver(receiver);
-                    	    receiver = null;
-                        }
-                        showProgress();
-                        StartupTimerActivity.platformInstallationDone = System.currentTimeMillis();
-                        initJRuby(false);
-                    }
-                }
-            };
-            IntentFilter filter = new IntentFilter(Intent.ACTION_PACKAGE_ADDED);
-            filter.addDataScheme("package");
-            registerReceiver(receiver, filter);
-            initJRuby(true);
             super.onResume();
         }
     }
@@ -103,12 +95,9 @@ public class EntryPointActivity extends org.ruboto.RubotoActivity {
                 final boolean jrubyOk = JRubyAdapter.setUpJRuby(EntryPointActivity.this);
                 if (jrubyOk) {
                     Log.d("onResume: JRuby OK");
-                    runOnUiThread(new Runnable() {
-                        public void run() {
-                            fireRubotoActivity();
-                        }
-                    });
+                    fireRubotoActivity();
                 } else {
+                    registerPackageInstallReceiver();
                     runOnUiThread(new Runnable() {
                         public void run() {
                             if (firstTime) {
@@ -139,14 +128,10 @@ public class EntryPointActivity extends org.ruboto.RubotoActivity {
 
     // Called when the button is pressed.
     public void getRubotoCore(View view) {
-        try {
-            startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("market://details?id=org.ruboto.core")));
-        } catch (android.content.ActivityNotFoundException anfe) {
-            try {
-                Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(RUBOTO_URL));
-                startActivity(intent);
-            } catch (Exception e) {}
-        }
+        Uri apkUri = Uri.parse(RUBOTO_URL);
+        Intent promptInstall = new Intent(Intent.ACTION_VIEW);
+        promptInstall.setDataAndType(apkUri, "application/vnd.android.package-archive");
+        startActivity(promptInstall);
     }
 
     protected void fireRubotoActivity() {
@@ -154,11 +139,16 @@ public class EntryPointActivity extends org.ruboto.RubotoActivity {
         StartupTimerActivity.fireRubotoActivity = System.currentTimeMillis();
         appStarted = true;
         Log.i("Starting activity");
-        ScriptLoader.loadScript(this, args[0]);
-        onStart();
-        StartupTimerActivity.scriptLoaded = System.currentTimeMillis();
-        super.onResume();
-        hideProgress();
+        ScriptLoader.loadScript(this);
+        runOnUiThread(new Runnable() {
+            public void run() {
+                ScriptLoader.callOnCreate(EntryPointActivity.this, args[0]);
+                onStart();
+                StartupTimerActivity.scriptLoaded = System.currentTimeMillis();
+                onResume();
+                hideProgress();
+            }
+        });
     }
 
     private void showProgress() {
@@ -189,4 +179,25 @@ public class EntryPointActivity extends org.ruboto.RubotoActivity {
         }
     }
 
+    private void registerPackageInstallReceiver() {
+        receiver = new BroadcastReceiver(){
+            public void onReceive(Context context, Intent intent) {
+                Log.i("received broadcast: " + intent);
+                Log.i("URI: " + intent.getData());
+                if (intent.getData().toString().equals("package:org.ruboto.core")) {
+                    Toast.makeText(context,"Ruboto Core is now installed.",Toast.LENGTH_SHORT).show();
+                    if (receiver != null) {
+        	            unregisterReceiver(receiver);
+        	            receiver = null;
+                    }
+                    showProgress();
+                    StartupTimerActivity.platformInstallationDone = System.currentTimeMillis();
+                    initJRuby(false);
+                }
+            }
+        };
+        IntentFilter filter = new IntentFilter(Intent.ACTION_PACKAGE_ADDED);
+        filter.addDataScheme("package");
+        registerReceiver(receiver, filter);
+    }
 }

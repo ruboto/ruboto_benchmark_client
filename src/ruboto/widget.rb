@@ -18,8 +18,8 @@ require 'ruboto/activity'
 java_import 'android.view.View'
 
 def invoke_with_converted_arguments(target, method_name, values)
-  converted_values = values.is_a?(String) ? [values] : [*values].map { |i| @@convert_constants[i] || i }
-  scaled_values = converted_values.each_with_index.map do |v, i|
+  converted_values = [*values].map { |i| @@convert_constants[i] || i }
+  scaled_values = converted_values.map.with_index do |v, i|
     v.is_a?(Integer) && v >= 0x80000000 && v <= 0xFFFFFFFF ?
         v.to_i - 0x100000000 : v
   end
@@ -75,7 +75,7 @@ end
 # Load ViewGroup constants
 #
 
-java_import "android.view.ViewGroup"
+java_import 'android.view.ViewGroup'
 ViewGroup::LayoutParams.constants.each do |i|
   View.add_constant_conversion i.downcase.to_sym, ViewGroup::LayoutParams.const_get(i)
 end
@@ -84,7 +84,7 @@ end
 # Load Gravity constants
 #
 
-java_import "android.view.Gravity"
+java_import 'android.view.Gravity'
 Gravity.constants.each do |i|
   View.add_constant_conversion i.downcase.to_sym, Gravity.const_get(i)
 end
@@ -97,7 +97,7 @@ def ruboto_import_widgets(*widgets)
   widgets.each { |i| ruboto_import_widget i }
 end
 
-def ruboto_import_widget(class_name, package_name="android.widget")
+def ruboto_import_widget(class_name, package_name='android.widget')
   if class_name.is_a?(String) or class_name.is_a?(Symbol)
     klass = java_import("#{package_name}.#{class_name}") || eval("Java::#{package_name}.#{class_name}")
   else
@@ -165,6 +165,7 @@ def setup_image_button
 end
 
 def setup_list_view
+  Java::android.widget.ListView.__persistent__ = true
   Java::android.widget.ListView.class_eval do
     def configure(context, params = {})
       if list = params.delete(:list)
@@ -186,6 +187,7 @@ def setup_list_view
 end
 
 def setup_spinner
+  Java::android.widget.Spinner.__persistent__ = true
   Java::android.widget.Spinner.class_eval do
     attr_reader :adapter, :adapter_list
 
