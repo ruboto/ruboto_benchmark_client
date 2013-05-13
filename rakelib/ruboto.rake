@@ -48,29 +48,23 @@ if new_dx_content =~ xmx_pattern &&
     ($1.to_i * 1024 ** {'M' => 2, 'G' => 3, 'T' => 4}[$2.upcase]) < MINIMUM_DX_HEAP_SIZE*1024**2
   puts "Increasing max heap space from #$1#$2 to #{MINIMUM_DX_HEAP_SIZE}M in #{dx_filename}"
   new_dx_content.sub!(xmx_pattern, %Q{defaultMx="-Xmx#{MINIMUM_DX_HEAP_SIZE}M"})
+
+  # FIXME(uwe): For travis debugging  Remove when travis is stable.
+  new_dx_content.sub!(/^exec/, "free\necho Virtual:\nps -e -ovsize=,args= | sort -b -k1,1n | tail -n10\necho RSS:\nps -e -orss=,args= | sort -b -k1,1n | tail -n10\necho $javaOpts\necho $@\nexec") if RbConfig::CONFIG['host_os'] =~ /linux/
+  # EMXIF
+
   File.open(dx_filename, 'w') { |f| f << new_dx_content } rescue puts "\n!!! Unable to increase dx heap size !!!\n\n"
+
+  # FIXME(uwe): For travis debugging  Remove when travis is stable.
   puts new_dx_content.lines.grep(xmx_pattern)
+  # EMXIF
 end
 
-def manifest;
-  @manifest ||= REXML::Document.new(File.read(MANIFEST_FILE))
-end
-
-def package;
-  manifest.root.attribute('package')
-end
-
-def build_project_name;
-  @build_project_name ||= REXML::Document.new(File.read('build.xml')).elements['project'].attribute(:name).value
-end
-
-def scripts_path;
-  @sdcard_path ||= "/mnt/sdcard/Android/data/#{package}/files/scripts"
-end
-
-def app_files_path;
-  @app_files_path ||= "/data/data/#{package}/files"
-end
+def manifest; @manifest ||= REXML::Document.new(File.read(MANIFEST_FILE)) end
+def package; manifest.root.attribute('package') end
+def build_project_name; @build_project_name ||= REXML::Document.new(File.read('build.xml')).elements['project'].attribute(:name).value end
+def scripts_path; @sdcard_path ||= "/mnt/sdcard/Android/data/#{package}/files/scripts" end
+def app_files_path; @app_files_path ||= "/data/data/#{package}/files" end
 
 PROJECT_DIR = File.expand_path('..', File.dirname(__FILE__))
 UPDATE_MARKER_FILE = File.join(PROJECT_DIR, 'bin', 'LAST_UPDATE')
@@ -573,6 +567,7 @@ def build_apk(t, release)
   if release
     sh "#{ANT_CMD} release"
   else
+    sh 'free' if RbConfig::CONFIG['host_os'] =~ /linux/
     sh "#{ANT_CMD} debug"
   end
   true

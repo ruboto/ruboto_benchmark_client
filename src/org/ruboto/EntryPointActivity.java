@@ -16,6 +16,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,7 +35,7 @@ public class EntryPointActivity extends org.ruboto.RubotoActivity {
     private BroadcastReceiver receiver;
     private long enqueue;
     java.io.File localFile;
-    private static final int INSTALL_REQUEST_CODE = 42;
+    private static final int INSTALL_REQUEST_CODE = 4242;
 
     // FIXME(uwe):  Remove this field?  Duplicated by ScriptInfo.isLoaded() ?
     protected boolean appStarted = false;
@@ -148,12 +149,10 @@ public class EntryPointActivity extends org.ruboto.RubotoActivity {
     // Called when the button is pressed.
     public void getRubotoCore(View view) {
         try {
-            if (hasInternetPermission()) {
+            if (hasInternetPermission() && canInstallFromUnknownSources()) {
                 if (enqueue <= 0) {
                     DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
                     Request request = new Request(Uri.parse(RUBOTO_URL));
-                    // request.setDescription("Downloading RubotoCore...");
-                    // request.setTitle("Downloading RubotoCore");
                     enqueue = dm.enqueue(request);
                     hideProgress();
                     showDownloadProgress("Downloading RubotoCore...");
@@ -258,10 +257,6 @@ public class EntryPointActivity extends org.ruboto.RubotoActivity {
         }
     }
 
-    // https://github.com/commonsguy/cw-android/blob/master/Internet/Download/src/com/commonsware/android/download/DownloadDemo.java
-    // http://stackoverflow.com/questions/7239996/android-downloadmanager-api-opening-file-after-download
-    // http://stackoverflow.com/questions/11121121/android-download-an-application-using-the-downloadmanager-class
-    // https://bitbucket.org/dxh/chant/src/78d9ca337dcccb3fc1bd5b1b9741e91412b7034e/src/com/dxh/chant/update/ApkUpdater.java?at=master
     private void registerPackageInstallReceiver() {
         receiver = new BroadcastReceiver(){
             public void onReceive(Context context, Intent intent) {
@@ -277,15 +272,11 @@ public class EntryPointActivity extends org.ruboto.RubotoActivity {
                         DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
                         Cursor c = dm.query(query);
                         if (c.moveToFirst()) {
-                            // Toast.makeText(context,"Download complete.",Toast.LENGTH_LONG).show();
                             hideProgress();
                             int status = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS));
                             if (DownloadManager.STATUS_SUCCESSFUL == status) {
-                                // String title = c.getString(c.getColumnIndex(DownloadManager.COLUMN_TITLE));
-                                // String uriString = c.getString(c.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
-                                // uri = Uri.parse(uriString);
-                                    storeDownload(dm, downloadId);
-                                    installDownload();
+                                storeDownload(dm, downloadId);
+                                installDownload();
                             } else {
                                 int reason = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_REASON));
                                 Toast.makeText(context,"Download failed (" + status + "): " + reason, Toast.LENGTH_LONG).show();
@@ -294,8 +285,6 @@ public class EntryPointActivity extends org.ruboto.RubotoActivity {
                             Toast.makeText(context,"Download diappeared!", Toast.LENGTH_LONG).show();
                         }
                         c.close();
-                    } else {
-                        // Toast.makeText(context,"Download id did not match: " + enqueue + " != " + downloadId, Toast.LENGTH_LONG).show();
                     }
                 } else if (Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction())) {
                     if (intent.getData().toString().equals("package:org.ruboto.core")) {
@@ -318,7 +307,6 @@ public class EntryPointActivity extends org.ruboto.RubotoActivity {
         registerReceiver(receiver, filter);
         IntentFilter download_filter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
         registerReceiver(receiver, download_filter);
-        // registerReceiver(receiver, new IntentFilter(Intent.ACTION_PACKAGE_FIRST_LAUNCH));
     }
 
     private void storeDownload(DownloadManager dm, long downloadId) {
@@ -386,13 +374,14 @@ public class EntryPointActivity extends org.ruboto.RubotoActivity {
         if (requestCode == INSTALL_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 Log.d("onActivityResult: Install OK.");
-                String result=data.getStringExtra("result");
             } else if (resultCode == RESULT_CANCELED) {
                 Log.d("onActivityResult: Install canceled.");
+                // FIXME(uwe): Maybe show a dialog explaining that RubotoCore is needed and try again?
                 deleteFile(RUBOTO_APK);
                 if (!JRubyAdapter.isInitialized()) {
                     finish();
                 }
+                // EMXIF
             } else {
                 Log.e("onActivityResult: resultCode: " + resultCode);
             }
@@ -406,28 +395,41 @@ public class EntryPointActivity extends org.ruboto.RubotoActivity {
         return (res == PackageManager.PERMISSION_GRANTED);
     }
 
+    private boolean canInstallFromUnknownSources() {
+        Uri settingsUri = Settings.Secure.CONTENT_URI;
+        String[] projection = new String[]{Settings.System.VALUE};
+        String selection = Settings.Secure.NAME + " = ? AND " + Settings.Secure.VALUE + " = ?";
+
+        // FIXME(uwe): Use android.provider.Settings.Global.INSTALL_NON_MARKET_APPS
+        //             when we stop supporting Android api level < 17
+        String[] selectionArgs = {Settings.Secure.INSTALL_NON_MARKET_APPS, String.valueOf(1)};
+        // EMXIF
+
+        Cursor query = getContentResolver().query(settingsUri, projection,
+            selection, selectionArgs, null);
+        return query.getCount() == 1;
+    }
+
     // Get the downloaded percent
     private int getProgressPercentage() {
-        int DOWNLOADED_BYTES_SO_FAR_INT = 0, TOTAL_BYTES_INT = 0, PERCENTAGE = 0;
+        int downloadedBytesSoFar = 0, totalBytes = 0, percentage = 0;
         DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
         try {
             Cursor c = dm.query(new DownloadManager.Query().setFilterById(enqueue));
             if (c.moveToFirst()) {
-                DOWNLOADED_BYTES_SO_FAR_INT = (int) c
-                        .getLong(c
-                                .getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
-                TOTAL_BYTES_INT = (int) c
-                        .getLong(c
-                                .getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
+                int soFarIndex =c.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR);
+                downloadedBytesSoFar = (int) c.getLong(soFarIndex);
+                int totalSizeIndex = c.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES);
+                totalBytes = (int) c.getLong(totalSizeIndex);
             }
-            System.out.println("PERCEN ------" + DOWNLOADED_BYTES_SO_FAR_INT
-                    + " ------ " + TOTAL_BYTES_INT + "****" + PERCENTAGE);
-            PERCENTAGE = (DOWNLOADED_BYTES_SO_FAR_INT * 100 / TOTAL_BYTES_INT);
-            System.out.println("PERCENTAGE % " + PERCENTAGE);
+            System.out.println("PERCEN ------" + downloadedBytesSoFar
+                    + " ------ " + totalBytes + "****" + percentage);
+            percentage = (downloadedBytesSoFar * 100 / totalBytes);
+            System.out.println("percentage % " + percentage);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return PERCENTAGE;
+        return percentage;
     }
 
 }
