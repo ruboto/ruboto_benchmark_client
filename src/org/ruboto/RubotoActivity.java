@@ -8,9 +8,12 @@ import android.app.ProgressDialog;
 import android.os.Bundle;
 
 public class RubotoActivity extends android.app.Activity implements org.ruboto.RubotoComponent {
+    public static final String THEME_KEY = "RUBOTO_THEME";
     private final ScriptInfo scriptInfo = new ScriptInfo();
-    private String remoteVariable = null;
     Bundle[] args;
+
+    // FIXME(uwe):  What is this for?
+    private String remoteVariable = null;
 
     public RubotoActivity setRemoteVariable(String var) {
         remoteVariable = var;
@@ -20,6 +23,7 @@ public class RubotoActivity extends android.app.Activity implements org.ruboto.R
     public String getRemoteVariableCall(String call) {
         return (remoteVariable == null ? "" : (remoteVariable + ".")) + call;
     }
+    // EMXIF
 
     public ScriptInfo getScriptInfo() {
         return scriptInfo;
@@ -32,20 +36,34 @@ public class RubotoActivity extends android.app.Activity implements org.ruboto.R
     @Override
     public void onCreate(Bundle bundle) {
         System.out.println("RubotoActivity onCreate(): " + getClass().getName());
-        if (ScriptLoader.isCalledFromJRuby()) {
+
+        // Shut this RubotoActivity down if it's not able to restart 
+        if (!(this instanceof EntryPointActivity) && !JRubyAdapter.isInitialized()) {
+            super.onCreate(bundle);
+	        System.out.println("Shutting down stale RubotoActivity: " + getClass().getName());
+            finish();
+            return;
+        }
+				
+       if (ScriptLoader.isCalledFromJRuby()) {
             super.onCreate(bundle);
             return;
         }
-        args = new Bundle[1];
-        args[0] = bundle;
+        args = new Bundle[]{bundle};
 
+        // FIXME(uwe):  Deprecated as of Ruboto 0.13.0.  Remove in june 2014 (twelve months).
         Bundle configBundle = getIntent().getBundleExtra("Ruboto Config");
         if (configBundle != null) {
             if (configBundle.containsKey("Theme")) {
                 setTheme(configBundle.getInt("Theme"));
             }
-            scriptInfo.setFromIntent(getIntent());
         }
+        // EMXIF
+
+        if (getIntent().hasExtra(THEME_KEY)) {
+            setTheme(getIntent().getIntExtra(THEME_KEY, 0));
+        }
+        scriptInfo.setFromIntent(getIntent());
 
         if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
     	    ScriptLoader.loadScript(this);
