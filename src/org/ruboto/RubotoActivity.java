@@ -12,19 +12,6 @@ public class RubotoActivity extends android.app.Activity implements org.ruboto.R
     private final ScriptInfo scriptInfo = new ScriptInfo();
     Bundle[] args;
 
-    // FIXME(uwe):  What is this for?
-    private String remoteVariable = null;
-
-    public RubotoActivity setRemoteVariable(String var) {
-        remoteVariable = var;
-        return this;
-    }
-
-    public String getRemoteVariableCall(String call) {
-        return (remoteVariable == null ? "" : (remoteVariable + ".")) + call;
-    }
-    // EMXIF
-
     public ScriptInfo getScriptInfo() {
         return scriptInfo;
     }
@@ -38,9 +25,9 @@ public class RubotoActivity extends android.app.Activity implements org.ruboto.R
         System.out.println("RubotoActivity onCreate(): " + getClass().getName());
 
         // Shut this RubotoActivity down if it's not able to restart 
-        if (!(this instanceof EntryPointActivity) && !JRubyAdapter.isInitialized()) {
+        if (this.getClass().getName().equals("org.ruboto.RubotoActivity") && !JRubyAdapter.isInitialized()) {
             super.onCreate(bundle);
-	        System.out.println("Shutting down stale RubotoActivity: " + getClass().getName());
+	          System.out.println("Shutting down stale RubotoActivity: " + getClass().getName());
             finish();
             return;
         }
@@ -232,25 +219,6 @@ public class RubotoActivity extends android.app.Activity implements org.ruboto.R
         return (java.lang.CharSequence) JRubyAdapter.runRubyMethod(java.lang.CharSequence.class, scriptInfo.getRubyInstance(), "onCreateDescription");
       } else {
         return super.onCreateDescription();
-      }
-    }
-  }
-
-  public android.app.Dialog onCreateDialog(int id) {
-    if (ScriptLoader.isCalledFromJRuby()) return super.onCreateDialog(id);
-    if (!JRubyAdapter.isInitialized()) {
-      Log.i("Method called before JRuby runtime was initialized: RubotoActivity#onCreateDialog");
-      return super.onCreateDialog(id);
-    }
-    String rubyClassName = scriptInfo.getRubyClassName();
-    if (rubyClassName == null) return super.onCreateDialog(id);
-    if ((Boolean)JRubyAdapter.runScriptlet(rubyClassName + ".instance_methods(false).any?{|m| m.to_sym == :on_create_dialog}")) {
-      return (android.app.Dialog) JRubyAdapter.runRubyMethod(android.app.Dialog.class, scriptInfo.getRubyInstance(), "on_create_dialog", id);
-    } else {
-      if ((Boolean)JRubyAdapter.runScriptlet(rubyClassName + ".instance_methods(false).any?{|m| m.to_sym == :onCreateDialog}")) {
-        return (android.app.Dialog) JRubyAdapter.runRubyMethod(android.app.Dialog.class, scriptInfo.getRubyInstance(), "onCreateDialog", id);
-      } else {
-        return super.onCreateDialog(id);
       }
     }
   }
@@ -612,25 +580,6 @@ public class RubotoActivity extends android.app.Activity implements org.ruboto.R
         JRubyAdapter.runRubyMethod(scriptInfo.getRubyInstance(), "onPostResume");
       } else {
         {super.onPostResume(); return;}
-      }
-    }
-  }
-
-  public void onPrepareDialog(int id, android.app.Dialog dialog) {
-    if (ScriptLoader.isCalledFromJRuby()) {super.onPrepareDialog(id, dialog); return;}
-    if (!JRubyAdapter.isInitialized()) {
-      Log.i("Method called before JRuby runtime was initialized: RubotoActivity#onPrepareDialog");
-      {super.onPrepareDialog(id, dialog); return;}
-    }
-    String rubyClassName = scriptInfo.getRubyClassName();
-    if (rubyClassName == null) {super.onPrepareDialog(id, dialog); return;}
-    if ((Boolean)JRubyAdapter.runScriptlet(rubyClassName + ".instance_methods(false).any?{|m| m.to_sym == :on_prepare_dialog}")) {
-      JRubyAdapter.runRubyMethod(scriptInfo.getRubyInstance(), "on_prepare_dialog", new Object[]{id, dialog});
-    } else {
-      if ((Boolean)JRubyAdapter.runScriptlet(rubyClassName + ".instance_methods(false).any?{|m| m.to_sym == :onPrepareDialog}")) {
-        JRubyAdapter.runRubyMethod(scriptInfo.getRubyInstance(), "onPrepareDialog", new Object[]{id, dialog});
-      } else {
-        {super.onPrepareDialog(id, dialog); return;}
       }
     }
   }

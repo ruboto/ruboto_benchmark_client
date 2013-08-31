@@ -9,4 +9,11 @@ public class StartupTimerActivity extends org.ruboto.EntryPointActivity {
     public static Long stop;
     public static long platformInstallationStart;
     public static long platformInstallationDone;
+
+    public void onCreate(android.os.Bundle bundle) {
+        super.onCreate(bundle);
+        if (org.ruboto.JRubyAdapter.isInitialized()) {
+            StartupTimerActivity.scriptLoaded = System.currentTimeMillis();
+        }
+    }
 }

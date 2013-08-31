@@ -20,6 +20,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.ruboto.benchmarks.StartupTimerActivity;
 
 public class SplashActivity extends Activity {
     private int splash = 0;
@@ -386,9 +387,10 @@ public class SplashActivity extends Activity {
     }
 
     private void startUserActivity() {
-	PackageManager pm = getPackageManager();
-	Intent intent = pm.getLaunchIntentForPackage(getPackageName());
-	startActivity(intent);
+        StartupTimerActivity.fireRubotoActivity = System.currentTimeMillis();
+        if (getIntent().hasExtra(Intent.EXTRA_INTENT)) {
+            startActivity((Intent)getIntent().getParcelableExtra(Intent.EXTRA_INTENT));
+        }
     }
 
 }
