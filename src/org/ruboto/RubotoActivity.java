@@ -22,17 +22,17 @@ public class RubotoActivity extends android.app.Activity implements org.ruboto.R
      */
     @Override
     public void onCreate(Bundle bundle) {
-        System.out.println("RubotoActivity onCreate(): " + getClass().getName());
+        System.out.println("RubotoActivity onCreate(): " + getClass().getName() + ", finishing: " + isFinishing());
 
         // Shut this RubotoActivity down if it's not able to restart 
         if (this.getClass().getName().equals("org.ruboto.RubotoActivity") && !JRubyAdapter.isInitialized()) {
             super.onCreate(bundle);
-	          System.out.println("Shutting down stale RubotoActivity: " + getClass().getName());
+            System.out.println("Shutting down stale RubotoActivity: " + getClass().getName());
             finish();
             return;
         }
 				
-       if (ScriptLoader.isCalledFromJRuby()) {
+       if (isFinishing() || ScriptLoader.isCalledFromJRuby()) {
             super.onCreate(bundle);
             return;
         }

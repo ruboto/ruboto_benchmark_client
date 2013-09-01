@@ -273,7 +273,9 @@ public class JRubyAdapter {
                 }
 
                 addLoadPath(scriptsDirName(appContext));
-    	          put("$package_name", appContext.getPackageName());
+                long beforePut = System.currentTimeMillis();
+                put("$package_name", appContext.getPackageName());
+                Log.d("Put $package_name took: " + (System.currentTimeMillis() - beforePut));
 
                 initialized = true;
             } catch (ClassNotFoundException e) {

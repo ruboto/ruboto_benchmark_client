@@ -118,6 +118,7 @@ public class ScriptLoader {
     public static final void callOnCreate(final RubotoComponent component, Object... args) {
         if (component instanceof android.content.Context) {
             Log.d("Call onCreate on: " + component.getScriptInfo().getRubyInstance());
+            long beforeOnCreate = System.currentTimeMillis();
             // FIXME(uwe):  Simplify when we stop support for snake case aliasing interface callback methods.
             if ((Boolean)JRubyAdapter.runScriptlet(component.getScriptInfo().getRubyClassName() + ".instance_methods(false).any?{|m| m.to_sym == :onCreate}")) {
                 JRubyAdapter.runRubyMethod(component.getScriptInfo().getRubyInstance(), "onCreate", args);
@@ -125,6 +126,7 @@ public class ScriptLoader {
                 JRubyAdapter.runRubyMethod(component.getScriptInfo().getRubyInstance(), "on_create", args);
             }
             // EMXIF
+            Log.d("onCreate took: " + (System.currentTimeMillis() - beforeOnCreate) + "ms");
         }
     }
 

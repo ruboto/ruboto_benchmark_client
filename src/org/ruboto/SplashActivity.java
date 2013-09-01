@@ -32,7 +32,7 @@ public class SplashActivity extends Activity {
     private static final int INSTALL_REQUEST_CODE = 4242;
 
     public void onCreate(Bundle bundle) {
-	Log.d("SplashActivity onCreate:");
+	Log.d("SplashActivity onCreate: " + getIntent());
         localFile = new java.io.File(getFilesDir(), RUBOTO_APK);
 	try {
 	    splash = Class.forName(getPackageName() + ".R$layout").getField("splash").getInt(null);
@@ -79,8 +79,6 @@ public class SplashActivity extends Activity {
 		    if (jrubyOk) {
 			Log.d("onResume: JRuby OK");
 			startUserActivity();
-			hideProgress();
-			finish();
 		    } else {
 			registerPackageInstallReceiver();
 			runOnUiThread(new Runnable() {
@@ -389,7 +387,7 @@ public class SplashActivity extends Activity {
     private void startUserActivity() {
         StartupTimerActivity.fireRubotoActivity = System.currentTimeMillis();
         if (getIntent().hasExtra(Intent.EXTRA_INTENT)) {
-            startActivity((Intent)getIntent().getParcelableExtra(Intent.EXTRA_INTENT));
+            startActivity((Intent) getIntent().getParcelableExtra(Intent.EXTRA_INTENT));
         }
     }
 

@@ -13,7 +13,7 @@ public class StartupTimerActivity extends org.ruboto.EntryPointActivity {
     public void onCreate(android.os.Bundle bundle) {
         super.onCreate(bundle);
         if (org.ruboto.JRubyAdapter.isInitialized()) {
-            StartupTimerActivity.scriptLoaded = System.currentTimeMillis();
+            scriptLoaded = System.currentTimeMillis();
         }
     }
 }

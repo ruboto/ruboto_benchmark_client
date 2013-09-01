@@ -14,9 +14,9 @@ import android.os.Bundle;
 public class EntryPointActivity extends org.ruboto.RubotoActivity {
     public void onCreate(Bundle bundle) {
         Log.d("EntryPointActivity onCreate:");
-        getScriptInfo().setRubyClassName(getClass().getSimpleName());
-
-        if (!JRubyAdapter.isInitialized()) {
+        if (JRubyAdapter.isInitialized()) {
+            getScriptInfo().setRubyClassName(getClass().getSimpleName());
+        } else {
             showSplash();
             finish();
         }
@@ -32,6 +32,6 @@ public class EntryPointActivity extends org.ruboto.RubotoActivity {
     // The Intent to to call when done. Defaults to calling this Activity again.
     // Override to change.
     protected Intent futureIntent() {
-        return new Intent(this, this.getClass());
+        return new Intent(getIntent()).setAction(Intent.ACTION_VIEW);
     }
 }
