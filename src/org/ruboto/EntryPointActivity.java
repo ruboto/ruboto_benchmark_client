@@ -12,14 +12,17 @@ import android.os.Bundle;
  * dialog.
  */
 public class EntryPointActivity extends org.ruboto.RubotoActivity {
+
     public void onCreate(Bundle bundle) {
         Log.d("EntryPointActivity onCreate:");
+
         if (JRubyAdapter.isInitialized()) {
             getScriptInfo().setRubyClassName(getClass().getSimpleName());
         } else {
             showSplash();
             finish();
         }
+
         super.onCreate(bundle);
     }
 
@@ -28,10 +31,14 @@ public class EntryPointActivity extends org.ruboto.RubotoActivity {
         splashIntent.putExtra(Intent.EXTRA_INTENT, futureIntent());
         startActivity(splashIntent);
     }
-
+    
     // The Intent to to call when done. Defaults to calling this Activity again.
     // Override to change.
     protected Intent futureIntent() {
-        return new Intent(getIntent()).setAction(Intent.ACTION_VIEW);
+        if (getIntent().getAction().equals(Intent.ACTION_MAIN)) {
+            return new Intent(getIntent()).setAction(Intent.ACTION_VIEW);
+        } else {
+            return getIntent();
+        }
     }
 }

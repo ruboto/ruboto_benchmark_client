@@ -274,7 +274,7 @@ public class JRubyAdapter {
 
                 addLoadPath(scriptsDirName(appContext));
                 long beforePut = System.currentTimeMillis();
-                put("$package_name", appContext.getPackageName());
+    	          put("$package_name", appContext.getPackageName());
                 Log.d("Put $package_name took: " + (System.currentTimeMillis() - beforePut));
 
                 initialized = true;
