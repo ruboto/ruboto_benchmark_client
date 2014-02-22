@@ -86,6 +86,26 @@ public class JRubyAdapter {
         return initialized;
     }
 
+    public static boolean isInitialized(final Context context) {
+        if (initialized) return true;
+        new Thread(new Runnable(){
+            public void run() {
+                setUpJRuby(context);
+            }
+        }).start();
+        return false;
+    }
+
+    public static boolean isInitialized(final Context context, final PrintStream out) {
+        if (initialized) return true;
+        new Thread(new Runnable(){
+            public void run() {
+                setUpJRuby(context, out);
+            }
+        }).start();
+        return false;
+    }
+
     public static void put(String name, Object object) {
         try {
             Method putMethod = ruby.getClass().getMethod("put", String.class, Object.class);
@@ -129,9 +149,9 @@ public class JRubyAdapter {
         if (!initialized) {
             StartupTimerActivity.jrubyStart = System.currentTimeMillis();
             // BEGIN Ruboto HeapAlloc
-            // @SuppressWarnings("unused")
-            // byte[] arrayForHeapAllocation = new byte[13 * 1024 * 1024];
-            // arrayForHeapAllocation = null;
+            @SuppressWarnings("unused")
+            byte[] arrayForHeapAllocation = new byte[19 * 1024 * 1024];
+            arrayForHeapAllocation = null;
             // END Ruboto HeapAlloc
             setDebugBuild(appContext);
             Log.d("Setting up JRuby runtime (" + (isDebugBuild ? "DEBUG" : "RELEASE") + ")");
@@ -274,7 +294,7 @@ public class JRubyAdapter {
 
                 addLoadPath(scriptsDirName(appContext));
                 long beforePut = System.currentTimeMillis();
-    	          put("$package_name", appContext.getPackageName());
+    	        put("$package_name", appContext.getPackageName());
                 Log.d("Put $package_name took: " + (System.currentTimeMillis() - beforePut));
 
                 initialized = true;

@@ -25,7 +25,7 @@ public class RubotoActivity extends android.app.Activity implements org.ruboto.R
         System.out.println("RubotoActivity onCreate(): " + getClass().getName() + ", finishing: " + isFinishing());
 
         // Shut this RubotoActivity down if it's not able to restart
-        if (this.getClass().getName().equals("org.ruboto.RubotoActivity") && !JRubyAdapter.isInitialized()) {
+        if (this.getClass().getName().equals("org.ruboto.RubotoActivity") && !JRubyAdapter.isInitialized(this)) {
             super.onCreate(bundle);
             System.out.println("Shutting down stale RubotoActivity: " + getClass().getName());
             finish();
@@ -52,7 +52,7 @@ public class RubotoActivity extends android.app.Activity implements org.ruboto.R
         }
         scriptInfo.setFromIntent(getIntent());
 
-        if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
+        if (JRubyAdapter.isInitialized(this) && scriptInfo.isReadyToLoad()) {
     	    ScriptLoader.loadScript(this);
     	    ScriptLoader.callOnCreate(this, (Object[]) args);
         } else {
