@@ -32,13 +32,14 @@ public class SplashActivity extends Activity {
     private static final int INSTALL_REQUEST_CODE = 4242;
 
     public void onCreate(Bundle bundle) {
-        Log.d("SplashActivity onCreate:" + getIntent());
+        Log.d("SplashActivity onCreate:");
         localFile = new java.io.File(getFilesDir(), RUBOTO_APK);
         try {
             splash = Class.forName(getPackageName() + ".R$layout").getField("splash").getInt(null);
         } catch (Exception e) {
             splash = -1;
         }
+        requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
         if (!JRubyAdapter.isInitialized(this)) {
             initJRuby(true);
         }
@@ -141,13 +142,21 @@ public class SplashActivity extends Activity {
                     }).start();
                 }
                 return;
+            } else {
+                Log.e("Permission missing for direct download: Internet: " +
+                        hasInternetPermission() + ", non-market install: " +
+                        canInstallFromUnknownSources());
             }
         } catch (Exception e) {
             Log.e("Exception in direct RubotoCore download: " + e);
+            e.printStackTrace();
         }
         try {
+            Log.i("Download RubotoCore using the market");
             startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("market://details?id=org.ruboto.core")));
         } catch (android.content.ActivityNotFoundException anfe) {
+            Log.e("Exception in market RubotoCore download: " + anfe);
+            Log.i("Download RubotoCore using the download manager");
             Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(RUBOTO_URL));
             startActivity(intent);
         }
@@ -157,7 +166,6 @@ public class SplashActivity extends Activity {
         if (loadingDialog == null) {
             if (splash > 0) {
                 Log.i("Showing splash");
-                requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
                 setContentView(splash);
             } else {
                 Log.i("Showing progress");
@@ -177,7 +185,6 @@ public class SplashActivity extends Activity {
         if (loadingDialog == null) {
             if (splash > 0) {
                 Log.i("Showing splash");
-                requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
                 setContentView(splash);
             } else {
                 Log.i("Showing progress");
@@ -348,18 +355,11 @@ public class SplashActivity extends Activity {
     }
 
     private boolean canInstallFromUnknownSources() {
-        Uri settingsUri = Settings.Secure.CONTENT_URI;
-        String[] projection = new String[]{Settings.System.VALUE};
-        String selection = Settings.Secure.NAME + " = ? AND " + Settings.Secure.VALUE + " = ?";
-
-        // FIXME(uwe): Use android.provider.Settings.Global.INSTALL_NON_MARKET_APPS
-        //             when we stop supporting Android api level < 17
-        String[] selectionArgs = {Settings.Secure.INSTALL_NON_MARKET_APPS, String.valueOf(1)};
+        // FIXME(uwe): Use Settings.Global when we stop supporting Android api level < 17
+        // return Settings.Global.getInt(getContentResolver(), Settings.Global.INSTALL_NON_MARKET_APPS, 0) == 1;
         // EMXIF
 
-        Cursor query = getContentResolver().query(settingsUri, projection,
-                                                  selection, selectionArgs, null);
-        return query.getCount() == 1;
+        return Settings.Secure.getInt(getContentResolver(), Settings.Secure.INSTALL_NON_MARKET_APPS, 0) == 1;
     }
 
     // Get the downloaded percent

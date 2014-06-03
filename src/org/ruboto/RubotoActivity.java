@@ -193,7 +193,6 @@ public class RubotoActivity extends android.app.Activity implements org.ruboto.R
   }
 
   public void onCreate(android.os.Bundle savedInstanceState) {
-    System.out.println("Activity#onCreate: " + ScriptLoader.isCalledFromJRuby() + ", " + preOnCreate(savedInstanceState));
     if (ScriptLoader.isCalledFromJRuby()) {super.onCreate(savedInstanceState); return;}
     if (preOnCreate(savedInstanceState)) {super.onCreate(savedInstanceState); return;};
 if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
@@ -205,20 +204,14 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
     String rubyClassName = scriptInfo.getRubyClassName();
     if (rubyClassName == null) {super.onCreate(savedInstanceState); return;}
     if ((Boolean)JRubyAdapter.runScriptlet(rubyClassName + ".instance_methods(false).any?{|m| m.to_sym == :onCreate}")) {
-      System.out.println(1);
       JRubyAdapter.runRubyMethod(scriptInfo.getRubyInstance(), "onCreate", savedInstanceState);
     } else {
-      System.out.println(2);
       if ((Boolean)JRubyAdapter.runScriptlet(rubyClassName + ".instance_methods(false).any?{|m| m.to_sym == :on_create}")) {
-      System.out.println(3);
         JRubyAdapter.runRubyMethod(scriptInfo.getRubyInstance(), "on_create", savedInstanceState);
       } else {
-      System.out.println(4);
         if ((Boolean)JRubyAdapter.runScriptlet(rubyClassName + ".instance_methods(true).any?{|m| m.to_sym == :on_create}")) {
-      System.out.println(5);
           JRubyAdapter.runRubyMethod(scriptInfo.getRubyInstance(), "on_create", savedInstanceState);
         } else {
-      System.out.println(6);
           JRubyAdapter.runRubyMethod(scriptInfo.getRubyInstance(), "onCreate", savedInstanceState);
         }
       }

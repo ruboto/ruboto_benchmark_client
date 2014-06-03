@@ -18,8 +18,10 @@ require 'ruboto/activity'
 java_import 'android.view.View'
 
 def invoke_with_converted_arguments(target, method_name, values)
+  # FIXME(uwe):  Needed for Ruby 1.8 compatibility. Remove when we stop support for Ruby 1.8 mode.
   converted_values = values.is_a?(String) ? [values] : [*values].map { |i| @@convert_constants[i] || i }
   scaled_values = converted_values.each_with_index.map do |v, i|
+  # EMXIF
     v.is_a?(Integer) && v >= 0x80000000 && v <= 0xFFFFFFFF ?
         v.to_i - 0x100000000 : v
   end
@@ -76,7 +78,10 @@ View.class_eval do
     end
 
     params.each do |k, v|
-      method_name = self.respond_to?("#{k}=") ? "#{k}=" : k
+      setter_method = "set#{k.to_s.gsub(/(^|_)([a-z])/) { $2.upcase }}"
+      assign_method = "#{k}="
+      method_name = self.respond_to?(assign_method) ? assign_method :
+          (self.respond_to?(setter_method) ? setter_method : k)
       invoke_with_converted_arguments(self, method_name, v)
     end
   end
