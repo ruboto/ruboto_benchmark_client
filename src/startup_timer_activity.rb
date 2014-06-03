@@ -1,15 +1,5 @@
-require 'ruboto/activity'
-require 'ruboto/widget'
-require 'ruboto/util/toast'
-require 'ruboto/util/stack'
-
-ruboto_import_widgets :Button, :LinearLayout, :Spinner, :TextView
-
-java_import java.lang.System
-
 class StartupTimerActivity
   def onCreate(bundle)
-    puts 'Ruby onCreate'
     super
     layout_start = System.currentTimeMillis
     set_title "Ruboto Benchmarks #{package_manager.getPackageInfo($package_name, 0).versionName}"
@@ -44,7 +34,7 @@ class StartupTimerActivity
               'TicTacToe' => proc { require 'tictactoe'; Game.new },
               'NOOP' => proc {},
               'require json' => proc { require 'json/pure' },
-              'require tmail' => proc { require 'tmail' },
+              'require mail' => proc { require 'mail' },
               ##      			  'SQLdroid' => proc { require "sqldroid/version" ; require "sqldroid/sqldroid-0.3.0"  }, #needs to be modified
 
           }

@@ -326,6 +326,9 @@ public class JRubyAdapter {
                 System.out.println("JRuby version: " + Class.forName("org.jruby.runtime.Constants", true, scriptingContainerClass.getClassLoader())
                         .getDeclaredField("VERSION").get(String.class));
 
+                put("$application_context", appContext);
+                runScriptlet("require 'environment'");
+
                 initialized = true;
             } catch (ClassNotFoundException e) {
                 handleInitException(e);
