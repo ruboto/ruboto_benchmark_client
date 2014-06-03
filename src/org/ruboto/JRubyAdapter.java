@@ -155,19 +155,21 @@ public class JRubyAdapter {
             // END Ruboto HeapAlloc
             setDebugBuild(appContext);
             Log.d("Setting up JRuby runtime (" + (isDebugBuild ? "DEBUG" : "RELEASE") + ")");
-            System.setProperty("jruby.compile.mode", new String[]{"OFF", "OFFIR"}[((int) (Math.random() * 2))]);
-            // System.setProperty("jruby.compile.backend", "DALVIK");
-            System.setProperty("jruby.bytecode.version", "1.6");
-            System.setProperty("jruby.interfaces.useProxy", "true");
-            System.setProperty("jruby.management.enabled", "false");
-            System.setProperty("jruby.objectspace.enabled", "false");
-            System.setProperty("jruby.thread.pooling", "true");
-            System.setProperty("jruby.native.enabled", "false");
-            System.setProperty("jruby.compat.version", new String[]{"RUBY1_8", "RUBY1_9", "RUBY2_0"}[((int) (Math.random() * 3))]);
-            System.setProperty("jruby.ir.passes", "LocalOptimizationPass,DeadCodeElimination");
             System.setProperty("jruby.backtrace.style", "normal"); // normal raw full mri
+            System.setProperty("jruby.bytecode.version", "1.6");
+            System.setProperty("jruby.compat.version", new String[]{"RUBY1_8", "RUBY1_9", "RUBY2_0"}[((int) (Math.random() * 3))]);
+            // System.setProperty("jruby.compile.backend", "DALVIK");
+            System.setProperty("jruby.compile.mode", new String[]{"OFF", "OFFIR"}[((int) (Math.random() * 2))]);
+            System.setProperty("jruby.interfaces.useProxy", "true");
+            System.setProperty("jruby.ir.passes", "LocalOptimizationPass,DeadCodeElimination");
+            System.setProperty("jruby.management.enabled", "false");
+            System.setProperty("jruby.native.enabled", "false");
+            System.setProperty("jruby.objectspace.enabled", "false");
+            System.setProperty("jruby.rewrite.java.trace", "true");
+            System.setProperty("jruby.thread.pooling", "true");
 
             // Uncomment these to debug/profile Ruby source loading
+            // Analyse the output: grep "LoadService:   <-" | cut -f5 -d- | cut -c2- | cut -f1 -dm | awk '{total = total + $1}END{print total}'
             // System.setProperty("jruby.debug.loadService", "true");
             // System.setProperty("jruby.debug.loadService.timing", "true");
 
@@ -294,8 +296,10 @@ public class JRubyAdapter {
 
                 addLoadPath(scriptsDirName(appContext));
                 long beforePut = System.currentTimeMillis();
-    	        put("$package_name", appContext.getPackageName());
+                put("$package_name", appContext.getPackageName());
                 Log.d("Put $package_name took: " + (System.currentTimeMillis() - beforePut));
+
+                runScriptlet("::RUBOTO_JAVA_PROXIES = {}");
 
                 initialized = true;
             } catch (ClassNotFoundException e) {
@@ -379,7 +383,7 @@ public class JRubyAdapter {
     // FIXME(uwe):  Remove when we stop supporting Ruby 1.8
     @Deprecated public static boolean isRubyOneNine() {
     String rv = ((String)get("RUBY_VERSION"));
-        return rv.startsWith("2.0.") || rv.startsWith("1.9.");
+        return rv.startsWith("2.1.") || rv.startsWith("2.0.") || rv.startsWith("1.9.");
     }
 
     static void printStackTrace(Throwable t) {
@@ -388,7 +392,8 @@ public class JRubyAdapter {
         //try {
         //    t.printStackTrace(output);
         //} catch (NullPointerException npe) {
-            // TODO(uwe): printStackTrace should not fail
+            // TODO(uwe): t.printStackTrace() should not fail
+            System.err.println("" + t.getClass() + ": " + t);
             for (java.lang.StackTraceElement ste : t.getStackTrace()) {
                 output.append(ste.toString() + "\n");
             }

@@ -8,7 +8,8 @@ ruboto_import_widgets :Button, :LinearLayout, :Spinner, :TextView
 java_import java.lang.System
 
 class StartupTimerActivity
-  def on_create(bundle)
+  def onCreate(bundle)
+    puts 'Ruby onCreate'
     super
     layout_start = System.currentTimeMillis
     set_title "Ruboto Benchmarks #{package_manager.getPackageInfo($package_name, 0).versionName}"
@@ -61,7 +62,7 @@ class StartupTimerActivity
     @layout_duration = System.currentTimeMillis - layout_start
   end
 
-  def on_resume
+  def onResume
     super
     if $package.StartupTimerActivity.stop.nil?
       $package.StartupTimerActivity.stop = System.currentTimeMillis
