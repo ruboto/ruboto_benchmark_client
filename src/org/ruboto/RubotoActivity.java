@@ -54,6 +54,7 @@ public class RubotoActivity extends android.app.Activity implements org.ruboto.R
      *  Generated Methods
      */
 
+/*
   public void onActivityResult(int requestCode, int resultCode, android.content.Intent data) {
     if (ScriptLoader.isCalledFromJRuby()) {super.onActivityResult(requestCode, resultCode, data); return;}
     if (!JRubyAdapter.isInitialized()) {
@@ -76,7 +77,9 @@ public class RubotoActivity extends android.app.Activity implements org.ruboto.R
       }
     }
   }
+*/
 
+/*
   public void onChildTitleChanged(android.app.Activity childActivity, java.lang.CharSequence title) {
     if (ScriptLoader.isCalledFromJRuby()) {super.onChildTitleChanged(childActivity, title); return;}
     if (!JRubyAdapter.isInitialized()) {
@@ -99,7 +102,9 @@ public class RubotoActivity extends android.app.Activity implements org.ruboto.R
       }
     }
   }
+*/
 
+/*
   public void onConfigurationChanged(android.content.res.Configuration newConfig) {
     if (ScriptLoader.isCalledFromJRuby()) {super.onConfigurationChanged(newConfig); return;}
     if (!JRubyAdapter.isInitialized()) {
@@ -122,7 +127,9 @@ public class RubotoActivity extends android.app.Activity implements org.ruboto.R
       }
     }
   }
+*/
 
+/*
   public void onContentChanged() {
     if (ScriptLoader.isCalledFromJRuby()) {super.onContentChanged(); return;}
     if (!JRubyAdapter.isInitialized()) {
@@ -145,7 +152,9 @@ public class RubotoActivity extends android.app.Activity implements org.ruboto.R
       }
     }
   }
+*/
 
+/*
   public boolean onContextItemSelected(android.view.MenuItem item) {
     if (ScriptLoader.isCalledFromJRuby()) return super.onContextItemSelected(item);
     if (!JRubyAdapter.isInitialized()) {
@@ -168,7 +177,9 @@ public class RubotoActivity extends android.app.Activity implements org.ruboto.R
       }
     }
   }
+*/
 
+/*
   public void onContextMenuClosed(android.view.Menu menu) {
     if (ScriptLoader.isCalledFromJRuby()) {super.onContextMenuClosed(menu); return;}
     if (!JRubyAdapter.isInitialized()) {
@@ -191,6 +202,7 @@ public class RubotoActivity extends android.app.Activity implements org.ruboto.R
       }
     }
   }
+*/
 
   public void onCreate(android.os.Bundle savedInstanceState) {
     if (ScriptLoader.isCalledFromJRuby()) {super.onCreate(savedInstanceState); return;}
@@ -218,6 +230,7 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
     }
   }
 
+/*
   public void onCreateContextMenu(android.view.ContextMenu menu, android.view.View v, android.view.ContextMenu.ContextMenuInfo menuInfo) {
     if (ScriptLoader.isCalledFromJRuby()) {super.onCreateContextMenu(menu, v, menuInfo); return;}
     if (!JRubyAdapter.isInitialized()) {
@@ -240,7 +253,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public java.lang.CharSequence onCreateDescription() {
     if (ScriptLoader.isCalledFromJRuby()) return super.onCreateDescription();
     if (!JRubyAdapter.isInitialized()) {
@@ -263,7 +278,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public boolean onCreateOptionsMenu(android.view.Menu menu) {
     if (ScriptLoader.isCalledFromJRuby()) return super.onCreateOptionsMenu(menu);
     if (!JRubyAdapter.isInitialized()) {
@@ -286,7 +303,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public boolean onCreatePanelMenu(int featureId, android.view.Menu menu) {
     if (ScriptLoader.isCalledFromJRuby()) return super.onCreatePanelMenu(featureId, menu);
     if (!JRubyAdapter.isInitialized()) {
@@ -309,7 +328,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public android.view.View onCreatePanelView(int featureId) {
     if (ScriptLoader.isCalledFromJRuby()) return super.onCreatePanelView(featureId);
     if (!JRubyAdapter.isInitialized()) {
@@ -332,7 +353,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public boolean onCreateThumbnail(android.graphics.Bitmap outBitmap, android.graphics.Canvas canvas) {
     if (ScriptLoader.isCalledFromJRuby()) return super.onCreateThumbnail(outBitmap, canvas);
     if (!JRubyAdapter.isInitialized()) {
@@ -355,7 +378,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public android.view.View onCreateView(java.lang.String name, android.content.Context context, android.util.AttributeSet attrs) {
     if (ScriptLoader.isCalledFromJRuby()) return super.onCreateView(name, context, attrs);
     if (!JRubyAdapter.isInitialized()) {
@@ -378,7 +403,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public void onDestroy() {
     if (ScriptLoader.isCalledFromJRuby()) {super.onDestroy(); return;}
     if (!JRubyAdapter.isInitialized()) {
@@ -402,7 +429,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
     }
     ScriptLoader.unloadScript(this);
   }
+*/
 
+/*
   public boolean onKeyDown(int keyCode, android.view.KeyEvent event) {
     if (ScriptLoader.isCalledFromJRuby()) return super.onKeyDown(keyCode, event);
     if (!JRubyAdapter.isInitialized()) {
@@ -425,7 +454,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public boolean onKeyMultiple(int keyCode, int repeatCount, android.view.KeyEvent event) {
     if (ScriptLoader.isCalledFromJRuby()) return super.onKeyMultiple(keyCode, repeatCount, event);
     if (!JRubyAdapter.isInitialized()) {
@@ -448,7 +479,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public boolean onKeyUp(int keyCode, android.view.KeyEvent event) {
     if (ScriptLoader.isCalledFromJRuby()) return super.onKeyUp(keyCode, event);
     if (!JRubyAdapter.isInitialized()) {
@@ -471,7 +504,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public void onLowMemory() {
     if (ScriptLoader.isCalledFromJRuby()) {super.onLowMemory(); return;}
     if (!JRubyAdapter.isInitialized()) {
@@ -494,7 +529,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public boolean onMenuItemSelected(int featureId, android.view.MenuItem item) {
     if (ScriptLoader.isCalledFromJRuby()) return super.onMenuItemSelected(featureId, item);
     if (!JRubyAdapter.isInitialized()) {
@@ -517,7 +554,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public boolean onMenuOpened(int featureId, android.view.Menu menu) {
     if (ScriptLoader.isCalledFromJRuby()) return super.onMenuOpened(featureId, menu);
     if (!JRubyAdapter.isInitialized()) {
@@ -540,7 +579,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public void onNewIntent(android.content.Intent intent) {
     if (ScriptLoader.isCalledFromJRuby()) {super.onNewIntent(intent); return;}
     if (!JRubyAdapter.isInitialized()) {
@@ -563,7 +604,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public boolean onOptionsItemSelected(android.view.MenuItem item) {
     if (ScriptLoader.isCalledFromJRuby()) return super.onOptionsItemSelected(item);
     if (!JRubyAdapter.isInitialized()) {
@@ -586,7 +629,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public void onOptionsMenuClosed(android.view.Menu menu) {
     if (ScriptLoader.isCalledFromJRuby()) {super.onOptionsMenuClosed(menu); return;}
     if (!JRubyAdapter.isInitialized()) {
@@ -609,7 +654,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public void onPanelClosed(int featureId, android.view.Menu menu) {
     if (ScriptLoader.isCalledFromJRuby()) {super.onPanelClosed(featureId, menu); return;}
     if (!JRubyAdapter.isInitialized()) {
@@ -632,7 +679,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public void onPause() {
     if (ScriptLoader.isCalledFromJRuby()) {super.onPause(); return;}
     if (!JRubyAdapter.isInitialized()) {
@@ -655,7 +704,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public void onPostCreate(android.os.Bundle savedInstanceState) {
     if (ScriptLoader.isCalledFromJRuby()) {super.onPostCreate(savedInstanceState); return;}
     if (!JRubyAdapter.isInitialized()) {
@@ -678,7 +729,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public void onPostResume() {
     if (ScriptLoader.isCalledFromJRuby()) {super.onPostResume(); return;}
     if (!JRubyAdapter.isInitialized()) {
@@ -701,7 +754,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public boolean onPrepareOptionsMenu(android.view.Menu menu) {
     if (ScriptLoader.isCalledFromJRuby()) return super.onPrepareOptionsMenu(menu);
     if (!JRubyAdapter.isInitialized()) {
@@ -724,7 +779,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public boolean onPreparePanel(int featureId, android.view.View view, android.view.Menu menu) {
     if (ScriptLoader.isCalledFromJRuby()) return super.onPreparePanel(featureId, view, menu);
     if (!JRubyAdapter.isInitialized()) {
@@ -747,7 +804,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public void onRestart() {
     if (ScriptLoader.isCalledFromJRuby()) {super.onRestart(); return;}
     if (!JRubyAdapter.isInitialized()) {
@@ -770,7 +829,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public void onRestoreInstanceState(android.os.Bundle savedInstanceState) {
     if (ScriptLoader.isCalledFromJRuby()) {super.onRestoreInstanceState(savedInstanceState); return;}
     if (!JRubyAdapter.isInitialized()) {
@@ -793,6 +854,7 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
   public void onResume() {
     if (ScriptLoader.isCalledFromJRuby()) {super.onResume(); return;}
@@ -817,6 +879,7 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
     }
   }
 
+/*
   public java.lang.Object onRetainNonConfigurationInstance() {
     if (ScriptLoader.isCalledFromJRuby()) return super.onRetainNonConfigurationInstance();
     if (!JRubyAdapter.isInitialized()) {
@@ -839,7 +902,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public void onSaveInstanceState(android.os.Bundle outState) {
     if (ScriptLoader.isCalledFromJRuby()) {super.onSaveInstanceState(outState); return;}
     if (!JRubyAdapter.isInitialized()) {
@@ -862,7 +927,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public boolean onSearchRequested() {
     if (ScriptLoader.isCalledFromJRuby()) return super.onSearchRequested();
     if (!JRubyAdapter.isInitialized()) {
@@ -885,7 +952,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public void onStart() {
     if (ScriptLoader.isCalledFromJRuby()) {super.onStart(); return;}
     if (!JRubyAdapter.isInitialized()) {
@@ -908,7 +977,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public void onStop() {
     if (ScriptLoader.isCalledFromJRuby()) {super.onStop(); return;}
     if (!JRubyAdapter.isInitialized()) {
@@ -931,7 +1002,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public void onTitleChanged(java.lang.CharSequence title, int color) {
     if (ScriptLoader.isCalledFromJRuby()) {super.onTitleChanged(title, color); return;}
     if (!JRubyAdapter.isInitialized()) {
@@ -954,7 +1027,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public boolean onTouchEvent(android.view.MotionEvent event) {
     if (ScriptLoader.isCalledFromJRuby()) return super.onTouchEvent(event);
     if (!JRubyAdapter.isInitialized()) {
@@ -977,7 +1052,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public boolean onTrackballEvent(android.view.MotionEvent event) {
     if (ScriptLoader.isCalledFromJRuby()) return super.onTrackballEvent(event);
     if (!JRubyAdapter.isInitialized()) {
@@ -1000,7 +1077,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public void onWindowAttributesChanged(android.view.WindowManager.LayoutParams params) {
     if (ScriptLoader.isCalledFromJRuby()) {super.onWindowAttributesChanged(params); return;}
     if (!JRubyAdapter.isInitialized()) {
@@ -1023,7 +1102,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public void onWindowFocusChanged(boolean hasFocus) {
     if (ScriptLoader.isCalledFromJRuby()) {super.onWindowFocusChanged(hasFocus); return;}
     if (!JRubyAdapter.isInitialized()) {
@@ -1046,7 +1127,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public void onUserInteraction() {
     if (ScriptLoader.isCalledFromJRuby()) {super.onUserInteraction(); return;}
     if (!JRubyAdapter.isInitialized()) {
@@ -1069,7 +1152,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public void onUserLeaveHint() {
     if (ScriptLoader.isCalledFromJRuby()) {super.onUserLeaveHint(); return;}
     if (!JRubyAdapter.isInitialized()) {
@@ -1092,7 +1177,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public void onAttachedToWindow() {
     if (ScriptLoader.isCalledFromJRuby()) {super.onAttachedToWindow(); return;}
     if (!JRubyAdapter.isInitialized()) {
@@ -1115,7 +1202,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public void onBackPressed() {
     if (ScriptLoader.isCalledFromJRuby()) {super.onBackPressed(); return;}
     if (!JRubyAdapter.isInitialized()) {
@@ -1138,7 +1227,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public void onDetachedFromWindow() {
     if (ScriptLoader.isCalledFromJRuby()) {super.onDetachedFromWindow(); return;}
     if (!JRubyAdapter.isInitialized()) {
@@ -1161,7 +1252,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public boolean onKeyLongPress(int keyCode, android.view.KeyEvent event) {
     if (ScriptLoader.isCalledFromJRuby()) return super.onKeyLongPress(keyCode, event);
     if (!JRubyAdapter.isInitialized()) {
@@ -1184,7 +1277,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public android.app.Dialog onCreateDialog(int id, android.os.Bundle args) {
     if (ScriptLoader.isCalledFromJRuby()) return super.onCreateDialog(id, args);
     if (!JRubyAdapter.isInitialized()) {
@@ -1207,7 +1302,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public void onPrepareDialog(int id, android.app.Dialog dialog, android.os.Bundle args) {
     if (ScriptLoader.isCalledFromJRuby()) {super.onPrepareDialog(id, dialog, args); return;}
     if (!JRubyAdapter.isInitialized()) {
@@ -1230,7 +1327,9 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
+/*
   public void onApplyThemeResource(android.content.res.Resources.Theme theme, int resid, boolean first) {
     if (ScriptLoader.isCalledFromJRuby()) {super.onApplyThemeResource(theme, resid, first); return;}
     if (!JRubyAdapter.isInitialized()) {
@@ -1253,5 +1352,6 @@ if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
       }
     }
   }
+*/
 
 }
