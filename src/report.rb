@@ -15,8 +15,8 @@ class Report
   java_import org.apache.http.protocol.BasicHttpContext
   java_import org.apache.http.util.EntityUtils
 
-  SERVER_BASE ='http://ruboto-startup.heroku.com/measurements'
-  # SERVER_BASE ='http://192.168.0.195:3000/measurements' # Uwe's development laptop at home
+  SERVER_BASE ='https://ruboto-startup.herokuapp.com/measurements'
+  # SERVER_BASE ='http://192.168.0.100:3000/measurements' # Uwe's development laptop at home
   # SERVER_BASE ='http://10.10.1.190:3000/measurements' # Uwe's development laptop at work
   # SERVER_BASE ='http://192.168.137.41:3000/measurements' # Akshay's development laptop
 
@@ -31,12 +31,22 @@ class Report
         Log.i 'RubotoStartupTimer', 'Get form'
         get_form_method = HttpGet.new("#{SERVER_BASE}/new")
         response = http_client.execute(get_form_method, http_context)
-        body = EntityUtils.toString(response.entity)
+        form_body = EntityUtils.toString(response.entity)
+        if form_body =~ %r{<input name="authenticity_token" type="hidden" value="([^"]*)" /></div>}
+          authenticity_token = $1
+          Log.i 'RubotoStartupTimer', authenticity_token
+        else
+          activity.run_on_ui_thread do
+            activity.toast 'Could NOT send the report! (Unable to find the form token.)'
+          end
+          next
+        end
 
         Log.i 'RubotoStartupTimer', 'Post startup time'
         create_method = HttpPost.new("#{SERVER_BASE}")
         create_method.setHeader("Content-Type", "application/x-www-form-urlencoded")
         list = [
+            BasicNameValuePair.new('authenticity_token', authenticity_token),
             BasicNameValuePair.new('measurement[package]', $package_name),
             BasicNameValuePair.new('measurement[package_version]', activity.package_manager.getPackageInfo($package_name, 0).versionName),
             BasicNameValuePair.new('measurement[test]', test_name),
@@ -51,10 +61,10 @@ class Report
         ]
         entity = UrlEncodedFormEntity.new(list)
         create_method.setEntity(entity)
-        response = http_client.execute(create_method, http_context)
-        body = EntityUtils.toString(response.entity)
+        create_response = http_client.execute(create_method, http_context)
+        create_body = EntityUtils.toString(create_response.entity)
 
-        if response.status_line.status_code == 200
+        if create_response.status_line.status_code == 200
           Log.i 'RubotoStartupTimer', 'Results saved!'
           activity.run_on_ui_thread do
             activity.toast 'Results saved!'
@@ -63,7 +73,7 @@ class Report
           end
         else
           Log.i 'RubotoStartupTimer', "Request failed"
-          Log.i 'RubotoStartupTimer', body
+          Log.i 'RubotoStartupTimer', create_body
           activity.run_on_ui_thread { activity.toast 'Saving failed!' }
         end
       rescue
