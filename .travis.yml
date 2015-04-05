@@ -1,0 +1,21 @@
+# http://docs.travis-ci.com/user/languages/android/
+language: android
+
+sudo: false
+android:
+  components:
+    - build-tools-22.0.1
+
+script:
+  - gem install ruboto
+  - ruboto setup
+  - rake test
+
+notifications:
+  irc: "irc.freenode.org#ruboto"
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/fe0d532fe5bef5b7288c
+    on_success: always  # options: [always|never|change] default: always
+    on_failure: always  # options: [always|never|change] default: always
+    on_start: false     # default: false
