@@ -1,8 +1,36 @@
 class StartupTimerActivity
   def onCreate(bundle)
+    puts '1'
     super
+    puts '2'
     layout_start = System.currentTimeMillis
     set_title "Ruboto Benchmarks #{package_manager.getPackageInfo($package_name, 0).versionName}"
+    puts '3'
+
+    puts '3'
+    benchmarks = {
+        'Startup' => proc {},
+        'RubotoCore Install' => proc {},
+        'Layout' => proc {},
+        'JRuby Runtime pre' => proc {},
+        'JRuby Runtime load' => proc {},
+        'Platform Runtime load' => proc {},
+        'JRuby Runtime prep' => proc {},
+        'Script load' => proc {},
+        'Script resume' => proc {},
+        'require yaml' => proc { require 'yaml' },
+        'require active_record' => proc { require 'active_record' },
+        'require AS dependencies' => proc { require 'active_support/deprecation'; require 'active_support/dependencies' },
+        'Fibonacci, n=20' => proc { fib(20) },
+        'Fibonacci, n=25' => proc { fib(25) },
+        'TicTacToe' => proc { require 'tictactoe'; Game.new },
+        'NOOP' => proc {},
+        'require json' => proc { require 'json/pure' },
+        'require mail' => proc { require 'mail' },
+        ##      			  'SQLdroid' => proc { require "sqldroid/version" ; require "sqldroid/sqldroid-0.3.0"  }, #needs to be modified
+    }
+
+    puts '4'
 
     self.content_view =
         linear_layout :orientation => :vertical, :gravity => :center do
@@ -16,29 +44,6 @@ class StartupTimerActivity
                                    :text_size => [Java::android.util.TypedValue::COMPLEX_UNIT_PT, 24]
           @duration_view = text_view :id => 43, :text => '', :gravity => :center, :layout => button_layout,
                                      :text_size => [Java::android.util.TypedValue::COMPLEX_UNIT_PT, 30]
-          benchmarks = {
-              'Startup' => proc {},
-              'RubotoCore Install' => proc {},
-              'Layout' => proc {},
-              'JRuby Runtime pre' => proc {},
-              'JRuby Runtime load' => proc {},
-              'Platform Runtime load' => proc {},
-              'JRuby Runtime prep' => proc {},
-              'Script load' => proc {},
-              'Script resume' => proc {},
-              'require yaml' => proc { require 'yaml' },
-              'require active_record' => proc { require 'active_record' },
-              'require AS dependencies' => proc { require 'active_support/deprecation'; require 'active_support/dependencies' },
-              'Fibonacci, n=20' => proc { fib(20) },
-              'Fibonacci, n=25' => proc { fib(25) },
-              'TicTacToe' => proc { require 'tictactoe'; Game.new },
-              'NOOP' => proc {},
-              'require json' => proc { require 'json/pure' },
-              'require mail' => proc { require 'mail' },
-              ##      			  'SQLdroid' => proc { require "sqldroid/version" ; require "sqldroid/sqldroid-0.3.0"  }, #needs to be modified
-
-          }
-
           @benchmark_view =
               spinner :id => 48, :list => benchmarks.keys, :layout => button_layout,
                       :item_layout => $package.R::layout::spinner_layout,
@@ -50,6 +55,7 @@ class StartupTimerActivity
                  :on_click_listener => proc { finish }
         end
     @layout_duration = System.currentTimeMillis - layout_start
+    puts '5'
   end
 
   def onResume

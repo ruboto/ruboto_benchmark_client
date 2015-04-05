@@ -9,8 +9,25 @@ public class RubotoService extends android.app.Service implements org.ruboto.Rub
      * Called at the start of onCreate() to prepare the Activity.
      */
     private void preOnCreate() {
-        System.out.println("RubotoService onCreate(): " + getClass().getName());
-        getScriptInfo().setRubyClassName(getClass().getSimpleName());
+        if (!getClass().getSimpleName().equals("RubotoService")) {
+          System.out.println("RubotoService preOnCreate(): " + getClass().getName());
+          getScriptInfo().setRubyClassName(getClass().getSimpleName());
+          JRubyAdapter.setUpJRuby(this);
+        }
+    }
+
+    private void preOnStartCommand(android.content.Intent intent) {
+        if (getClass().getSimpleName().equals("RubotoService")) {
+          System.out.println("RubotoService preOnStartCommand(): " + getClass().getName());
+          scriptInfo.setFromIntent(intent);
+        }
+    }
+
+    private void preOnBind(android.content.Intent intent) {
+        if (getClass().getSimpleName().equals("RubotoService")) {
+          System.out.println("RubotoService preOnBind(): " + getClass().getName());
+          scriptInfo.setFromIntent(intent);
+        }
     }
 
     private final ScriptInfo scriptInfo = new ScriptInfo();
@@ -22,9 +39,11 @@ public class RubotoService extends android.app.Service implements org.ruboto.Rub
      *
      *  Generated Methods
      */
+
   public android.os.IBinder onBind(android.content.Intent intent) {
     if (ScriptLoader.isCalledFromJRuby()) return null;
-    if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
+    preOnBind(intent);
+if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
         ScriptLoader.loadScript(this);
     } else {
         return null;
@@ -72,7 +91,8 @@ public class RubotoService extends android.app.Service implements org.ruboto.Rub
 
   public void onCreate() {
     if (ScriptLoader.isCalledFromJRuby()) {super.onCreate(); return;}
-    preOnCreate();if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
+    preOnCreate();
+if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
         ScriptLoader.loadScript(this);
     } else {
         {super.onCreate(); return;}
@@ -190,7 +210,8 @@ public class RubotoService extends android.app.Service implements org.ruboto.Rub
 
   public int onStartCommand(android.content.Intent intent, int flags, int startId) {
     if (ScriptLoader.isCalledFromJRuby()) return super.onStartCommand(intent, flags, startId);
-    if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
+    preOnStartCommand(intent);
+if (JRubyAdapter.isInitialized() && scriptInfo.isReadyToLoad()) {
         ScriptLoader.loadScript(this);
     } else {
         return super.onStartCommand(intent, flags, startId);
@@ -208,6 +229,52 @@ public class RubotoService extends android.app.Service implements org.ruboto.Rub
           return (Integer) JRubyAdapter.runRubyMethod(Integer.class, scriptInfo.getRubyInstance(), "on_start_command", new Object[]{intent, flags, startId});
         } else {
           return (Integer) JRubyAdapter.runRubyMethod(Integer.class, scriptInfo.getRubyInstance(), "onStartCommand", new Object[]{intent, flags, startId});
+        }
+      }
+    }
+  }
+
+  public void onTaskRemoved(android.content.Intent arg0) {
+    if (ScriptLoader.isCalledFromJRuby()) {super.onTaskRemoved(arg0); return;}
+    if (!JRubyAdapter.isInitialized()) {
+      Log.i("Method called before JRuby runtime was initialized: RubotoService#onTaskRemoved");
+      {super.onTaskRemoved(arg0); return;}
+    }
+    String rubyClassName = scriptInfo.getRubyClassName();
+    if (rubyClassName == null) {super.onTaskRemoved(arg0); return;}
+    if ((Boolean)JRubyAdapter.runScriptlet(rubyClassName + ".instance_methods(false).any?{|m| m.to_sym == :onTaskRemoved}")) {
+      JRubyAdapter.runRubyMethod(scriptInfo.getRubyInstance(), "onTaskRemoved", arg0);
+    } else {
+      if ((Boolean)JRubyAdapter.runScriptlet(rubyClassName + ".instance_methods(false).any?{|m| m.to_sym == :on_task_removed}")) {
+        JRubyAdapter.runRubyMethod(scriptInfo.getRubyInstance(), "on_task_removed", arg0);
+      } else {
+        if ((Boolean)JRubyAdapter.runScriptlet(rubyClassName + ".instance_methods(true).any?{|m| m.to_sym == :on_task_removed}")) {
+          JRubyAdapter.runRubyMethod(scriptInfo.getRubyInstance(), "on_task_removed", arg0);
+        } else {
+          JRubyAdapter.runRubyMethod(scriptInfo.getRubyInstance(), "onTaskRemoved", arg0);
+        }
+      }
+    }
+  }
+
+  public void onTrimMemory(int arg0) {
+    if (ScriptLoader.isCalledFromJRuby()) {super.onTrimMemory(arg0); return;}
+    if (!JRubyAdapter.isInitialized()) {
+      Log.i("Method called before JRuby runtime was initialized: RubotoService#onTrimMemory");
+      {super.onTrimMemory(arg0); return;}
+    }
+    String rubyClassName = scriptInfo.getRubyClassName();
+    if (rubyClassName == null) {super.onTrimMemory(arg0); return;}
+    if ((Boolean)JRubyAdapter.runScriptlet(rubyClassName + ".instance_methods(false).any?{|m| m.to_sym == :onTrimMemory}")) {
+      JRubyAdapter.runRubyMethod(scriptInfo.getRubyInstance(), "onTrimMemory", arg0);
+    } else {
+      if ((Boolean)JRubyAdapter.runScriptlet(rubyClassName + ".instance_methods(false).any?{|m| m.to_sym == :on_trim_memory}")) {
+        JRubyAdapter.runRubyMethod(scriptInfo.getRubyInstance(), "on_trim_memory", arg0);
+      } else {
+        if ((Boolean)JRubyAdapter.runScriptlet(rubyClassName + ".instance_methods(true).any?{|m| m.to_sym == :on_trim_memory}")) {
+          JRubyAdapter.runRubyMethod(scriptInfo.getRubyInstance(), "on_trim_memory", arg0);
+        } else {
+          JRubyAdapter.runRubyMethod(scriptInfo.getRubyInstance(), "onTrimMemory", arg0);
         }
       }
     }

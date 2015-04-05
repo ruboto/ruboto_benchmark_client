@@ -87,26 +87,6 @@ public class JRubyAdapter {
         return initialized;
     }
 
-    public static boolean isInitialized(final Context context) {
-        if (initialized) return true;
-        new Thread(new Runnable(){
-            public void run() {
-                setUpJRuby(context);
-            }
-        }).start();
-        return false;
-    }
-
-    public static boolean isInitialized(final Context context, final PrintStream out) {
-        if (initialized) return true;
-        new Thread(new Runnable(){
-            public void run() {
-                setUpJRuby(context, out);
-            }
-        }).start();
-        return false;
-    }
-
     public static void put(String name, Object object) {
         try {
             Method putMethod = ruby.getClass().getMethod("put", String.class, Object.class);
@@ -149,6 +129,7 @@ public class JRubyAdapter {
     public static synchronized boolean setUpJRuby(Context appContext, PrintStream out) {
         if (!initialized) {
             StartupTimerActivity.jrubyStart = System.currentTimeMillis();
+            Log.d("Max memory: " + (Runtime.getRuntime().maxMemory() / (1024 * 1024)) + "MB");
             // BEGIN Ruboto HeapAlloc
             @SuppressWarnings("unused")
             byte[] arrayForHeapAllocation = new byte[19 * 1024 * 1024];
@@ -159,10 +140,12 @@ public class JRubyAdapter {
             System.setProperty("jruby.backtrace.style", "normal"); // normal raw full mri
             System.setProperty("jruby.bytecode.version", "1.6");
             // BEGIN Ruboto RubyVersion
-            System.setProperty("jruby.compat.version", new String[]{"RUBY1_8", "RUBY1_9", "RUBY2_0"}[((int) (Math.random() * 3))]);
+            // System.setProperty("jruby.compat.version", new String[]{"RUBY1_8", "RUBY1_9", "RUBY2_0"}[((int) (Math.random() * 3))]);
+            System.setProperty("jruby.compat.version", "RUBY1_9");
             // END Ruboto RubyVersion
             // System.setProperty("jruby.compile.backend", "DALVIK");
-            System.setProperty("jruby.compile.mode", new String[]{"OFF", "OFFIR"}[((int) (Math.random() * 2))]);
+            // System.setProperty("jruby.compile.mode", new String[]{"OFF", "OFFIR"}[((int) (Math.random() * 2))]);
+            System.setProperty("jruby.compile.mode", "OFF");
             System.setProperty("jruby.interfaces.useProxy", "true");
             System.setProperty("jruby.ir.passes", "LocalOptimizationPass,DeadCodeElimination");
             System.setProperty("jruby.management.enabled", "false");
@@ -326,8 +309,9 @@ public class JRubyAdapter {
                 System.out.println("JRuby version: " + Class.forName("org.jruby.runtime.Constants", true, scriptingContainerClass.getClassLoader())
                         .getDeclaredField("VERSION").get(String.class));
 
-                put("$application_context", appContext);
-                runScriptlet("require 'environment'");
+                // TODO(uwe):  Add a way to display startup progress.
+                put("$application_context", appContext.getApplicationContext());
+                runScriptlet("begin\n  require 'environment'\nrescue LoadError => e\n  puts e\nend");
 
                 initialized = true;
             } catch (ClassNotFoundException e) {
