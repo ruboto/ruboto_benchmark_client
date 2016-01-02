@@ -25,6 +25,7 @@ public class JRubyAdapter {
     private static String localContextScope = "SINGLETON"; // FIXME(uwe):  Why not CONCURRENT ?  Help needed!
     private static String localVariableBehavior = "TRANSIENT";
     private static String RUBOTO_CORE_VERSION_NAME;
+    private static String jrubyVersion;
 
     public static Object get(String name) {
         try {
@@ -37,6 +38,10 @@ public class JRubyAdapter {
         } catch (java.lang.reflect.InvocationTargetException ite) {
             throw new RuntimeException(ite);
         }
+    }
+
+    public static String getJRubyVersion() {
+        return jrubyVersion;
     }
 
     public static String getPlatformVersionName() {
@@ -135,13 +140,14 @@ public class JRubyAdapter {
             byte[] arrayForHeapAllocation = new byte[19 * 1024 * 1024];
             arrayForHeapAllocation = null;
             // END Ruboto HeapAlloc
+            Log.d("Memory allocation OK");
             setDebugBuild(appContext);
             Log.d("Setting up JRuby runtime (" + (isDebugBuild ? "DEBUG" : "RELEASE") + ")");
             System.setProperty("jruby.backtrace.style", "normal"); // normal raw full mri
             System.setProperty("jruby.bytecode.version", "1.6");
             // BEGIN Ruboto RubyVersion
             // System.setProperty("jruby.compat.version", new String[]{"RUBY1_8", "RUBY1_9", "RUBY2_0"}[((int) (Math.random() * 3))]);
-            System.setProperty("jruby.compat.version", "RUBY1_9");
+            // System.setProperty("jruby.compat.version", "RUBY1_9");
             // END Ruboto RubyVersion
             // System.setProperty("jruby.compile.backend", "DALVIK");
             // System.setProperty("jruby.compile.mode", new String[]{"OFF", "OFFIR"}[((int) (Math.random() * 2))]);
@@ -215,19 +221,20 @@ public class JRubyAdapter {
             }
 
             try {
+                jrubyVersion = (String)
+                        Class.forName("org.jruby.runtime.Constants", true,
+                                scriptingContainerClass.getClassLoader())
+                        .getDeclaredField("VERSION").get(String.class);
+                System.out.println("JRuby version: " + jrubyVersion);
+
                 //////////////////////////////////
                 //
                 // Set jruby.home
                 //
 
-                String jrubyHome = "file:" + apkName + "!/jruby.home";
-
-                // FIXME(uwe): Remove when we stop supporting RubotoCore 0.4.7
-                Log.i("RUBOTO_CORE_VERSION_NAME: " + RUBOTO_CORE_VERSION_NAME);
-                if (RUBOTO_CORE_VERSION_NAME != null &&
-                        (RUBOTO_CORE_VERSION_NAME.equals("0.4.7") || RUBOTO_CORE_VERSION_NAME.equals("0.4.8"))) {
-                    jrubyHome = "file:" + apkName + "!";
-                }
+                // FIXME(uwe): Simplify when we stop support for JRuby 1.7.x
+                final String jrubyHome = (jrubyVersion.startsWith("9.0.0.0") ?
+                        "jar:" : "file:") + apkName + "!/jruby.home";
                 // EMXIF
 
                 Log.i("Setting JRUBY_HOME: " + jrubyHome);
@@ -305,9 +312,6 @@ public class JRubyAdapter {
                 put("$package_name", appContext.getPackageName());
 
                 runScriptlet("::RUBOTO_JAVA_PROXIES = {}");
-
-                System.out.println("JRuby version: " + Class.forName("org.jruby.runtime.Constants", true, scriptingContainerClass.getClassLoader())
-                        .getDeclaredField("VERSION").get(String.class));
 
                 // TODO(uwe):  Add a way to display startup progress.
                 put("$application_context", appContext.getApplicationContext());

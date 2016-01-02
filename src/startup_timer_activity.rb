@@ -1,13 +1,9 @@
 class StartupTimerActivity
   def onCreate(bundle)
-    puts '1'
     super
-    puts '2'
     layout_start = System.currentTimeMillis
     set_title "Ruboto Benchmarks #{package_manager.getPackageInfo($package_name, 0).versionName}"
-    puts '3'
 
-    puts '3'
     benchmarks = {
         'Startup' => proc {},
         'RubotoCore Install' => proc {},
@@ -30,8 +26,6 @@ class StartupTimerActivity
         ##      			  'SQLdroid' => proc { require "sqldroid/version" ; require "sqldroid/sqldroid-0.3.0"  }, #needs to be modified
     }
 
-    puts '4'
-
     self.content_view =
         linear_layout :orientation => :vertical, :gravity => :center do
           button_weight = 1
@@ -39,7 +33,7 @@ class StartupTimerActivity
           button_layout = {:weight= => button_weight, :height= => :match_parent, :width= => :match_parent}
 
           @params_view = text_view :id => 42,
-                                   :text => "#{System.getProperty('jruby.compat.version').capitalize} #{System.getProperty("jruby.compile.mode").downcase}",
+                                   :text => "JRuby #{org.ruboto.JRubyAdapter.getJRubyVersion}",
                                    :gravity => :center, :layout => button_layout,
                                    :text_size => [Java::android.util.TypedValue::COMPLEX_UNIT_PT, 24]
           @duration_view = text_view :id => 43, :text => '', :gravity => :center, :layout => button_layout,
@@ -55,7 +49,6 @@ class StartupTimerActivity
                  :on_click_listener => proc { finish }
         end
     @layout_duration = System.currentTimeMillis - layout_start
-    puts '5'
   end
 
   def onResume
