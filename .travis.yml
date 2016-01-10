@@ -8,7 +8,7 @@ android:
 
 script:
   - gem install ruboto
-  - ruboto setup
+  - ruboto setup -y
   - rake test
 
 notifications:
