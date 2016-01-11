@@ -32,7 +32,7 @@ class Report
         get_form_method = HttpGet.new("#{SERVER_BASE}/new")
         response = http_client.execute(get_form_method, http_context)
         form_body = EntityUtils.toString(response.entity)
-        if form_body =~ %r{<input name="authenticity_token" type="hidden" value="([^"]*)" /></div>}
+        if form_body =~ %r{<input [^>]*name="authenticity_token" [^>]*value="([^"]*)"}
           authenticity_token = $1
           Log.i 'RubotoStartupTimer', authenticity_token
         else
