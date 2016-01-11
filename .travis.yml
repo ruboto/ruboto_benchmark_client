@@ -9,6 +9,7 @@ android:
 script:
   - gem install ruboto
   - ruboto setup -y
+  - ruboto emulator
   - rake test
 
 notifications:
